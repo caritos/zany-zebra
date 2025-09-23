@@ -1,8 +1,16 @@
-import { StyleSheet, ScrollView, View, Text } from "react-native";
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { router } from "expo-router";
 
 interface DatabaseChange {
   id: string;
@@ -15,6 +23,27 @@ interface DatabaseChange {
 export default function PreviewScreen() {
   const [changes, setChanges] = useState<DatabaseChange[]>([]);
   const [isListening, setIsListening] = useState(false);
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      Alert.alert("Error", error.message);
+    } else {
+      Alert.alert("Success", "You have been signed out");
+      router.replace("/(tabs)/login");
+    }
+  };
+
+  const checkCurrentUser = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      Alert.alert("Current User", `Logged in as: ${user.email}`);
+    } else {
+      Alert.alert("No User", "No user is currently logged in");
+    }
+  };
 
   useEffect(() => {
     setIsListening(true);
@@ -152,6 +181,24 @@ export default function PreviewScreen() {
           </View>
         </View>
       </ThemedView>
+
+      <ThemedView style={styles.debugSection}>
+        <ThemedText style={styles.debugTitle}>Debug Actions</ThemedText>
+        <View style={styles.debugButtons}>
+          <TouchableOpacity
+            style={styles.debugButton}
+            onPress={checkCurrentUser}
+          >
+            <Text style={styles.debugButtonText}>Check User</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.debugButton, styles.signOutButton]}
+            onPress={handleSignOut}
+          >
+            <Text style={styles.debugButtonText}>Sign Out</Text>
+          </TouchableOpacity>
+        </View>
+      </ThemedView>
     </ScrollView>
   );
 }
@@ -270,5 +317,37 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
     opacity: 0.7,
+  },
+  debugSection: {
+    margin: 16,
+    marginBottom: 32,
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "rgba(0,0,0,0.05)",
+  },
+  debugTitle: {
+    fontSize: 12,
+    fontWeight: "600",
+    marginBottom: 8,
+    opacity: 0.5,
+  },
+  debugButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  debugButton: {
+    flex: 1,
+    padding: 8,
+    borderRadius: 4,
+    backgroundColor: "#007AFF",
+    alignItems: "center",
+  },
+  signOutButton: {
+    backgroundColor: "#FF3B30",
+  },
+  debugButtonText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "500",
   },
 });
