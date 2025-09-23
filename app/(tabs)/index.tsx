@@ -2,7 +2,6 @@ import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Link } from "expo-router";
 
 export default function HomeScreen() {
   return (

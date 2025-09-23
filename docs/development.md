@@ -1,6 +1,31 @@
 # 20250323
+- i created a page called preview.tsx.
+  - im going to develop most of my code here and test it out before i work on the other pages
+  - i will see how it looks here first before applying to other pages.
 - setup jest to have unit test cases
 - all the test cases should be in the /tests folder
+- the new testing structure
+```
+- npm run test - Run all tests
+- npm run test:unit - Run only unit tests
+- npm run test:e2e - Run only e2e/integration tests
+- npm run test:all - Run all tests in /tests directory
+- npm run test:watch - Run tests in watch mode
+
+/tests/
+├── e2e/
+│   └── supabase.integration.test.ts  (4 tests ✓)
+├── unit/
+│   ├── components/
+│   │   ├── themed-text.test.tsx      (6 tests ✓)
+│   │   └── themed-view.test.tsx      (5 tests ✓)
+│   ├── hooks/
+│   │   └── use-theme-color.test.ts   (7 tests ✓)
+│   └── utils/
+│       └── tennis-scoring.test.ts    (17 tests ✓)
+└── utils/
+    └── test-utils.tsx                (testing utilities)
+```
 
 # 20250922
 - i can run the command `npm run test:e2e` to test the db conneciton
