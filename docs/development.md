@@ -1,4 +1,6 @@
 # 20250323
+- i want to test out "Supabase realtime changes"
+  - i have it working in preview.tsx
 - i created a page called preview.tsx.
   - im going to develop most of my code here and test it out before i work on the other pages
   - i will see how it looks here first before applying to other pages.
