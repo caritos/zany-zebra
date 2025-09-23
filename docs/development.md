@@ -1,5 +1,6 @@
 # 20250922
-
+- i can run the command `npm run test:e2e` to test the db conneciton
+- i'm trying to setup my supabase connection
 - i can run the app on the simulator by running `npm run ios`
 - i ran the command `npx testflight` successfully
   - this is an iOS-only ocmmand that will upload app to TestFlight

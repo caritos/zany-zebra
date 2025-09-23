@@ -1,98 +1,145 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Link } from "expo-router";
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
+    <ScrollView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">Tennis Tracker</ThemedText>
+        <ThemedText style={styles.subtitle}>
+          Track your matches and improve your game
         </ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
+      <ThemedView style={styles.quickActions}>
+        <TouchableOpacity style={styles.actionCard}>
+          <IconSymbol name="plus.circle.fill" size={40} color="#007AFF" />
+          <ThemedText style={styles.actionTitle}>New Match</ThemedText>
+          <ThemedText style={styles.actionDescription}>
+            Start tracking a new match
+          </ThemedText>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionCard}>
+          <IconSymbol name="clock.fill" size={40} color="#34C759" />
+          <ThemedText style={styles.actionTitle}>Quick Match</ThemedText>
+          <ThemedText style={styles.actionDescription}>
+            Record a quick practice session
+          </ThemedText>
+        </TouchableOpacity>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
+
+      <ThemedView style={styles.section}>
+        <ThemedText type="subtitle">Recent Matches</ThemedText>
+        <ThemedView style={styles.emptyState}>
+          <IconSymbol name="tennis.racket" size={60} color="#8E8E93" />
+          <ThemedText style={styles.emptyStateText}>
+            No matches recorded yet
+          </ThemedText>
+          <ThemedText style={styles.emptyStateSubtext}>
+            Start tracking your first match to see your progress
+          </ThemedText>
+        </ThemedView>
       </ThemedView>
-    </ParallaxScrollView>
+
+      <ThemedView style={styles.section}>
+        <ThemedText type="subtitle">Quick Stats</ThemedText>
+        <ThemedView style={styles.statsGrid}>
+          <ThemedView style={styles.statItem}>
+            <ThemedText style={styles.statValue}>0</ThemedText>
+            <ThemedText style={styles.statLabel}>Total Matches</ThemedText>
+          </ThemedView>
+          <ThemedView style={styles.statItem}>
+            <ThemedText style={styles.statValue}>0%</ThemedText>
+            <ThemedText style={styles.statLabel}>Win Rate</ThemedText>
+          </ThemedView>
+          <ThemedView style={styles.statItem}>
+            <ThemedText style={styles.statValue}>0</ThemedText>
+            <ThemedText style={styles.statLabel}>Win Streak</ThemedText>
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  header: {
+    padding: 20,
+    paddingTop: 60,
+    alignItems: "center",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  subtitle: {
+    marginTop: 8,
+    opacity: 0.7,
+    textAlign: "center",
+  },
+  quickActions: {
+    flexDirection: "row",
+    padding: 16,
+    gap: 12,
+  },
+  actionCard: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: "rgba(0,122,255,0.1)",
+    alignItems: "center",
+  },
+  actionTitle: {
+    fontWeight: "600",
+    marginTop: 8,
+    fontSize: 16,
+  },
+  actionDescription: {
+    fontSize: 12,
+    marginTop: 4,
+    opacity: 0.7,
+    textAlign: "center",
+  },
+  section: {
+    margin: 16,
+  },
+  emptyState: {
+    padding: 32,
+    alignItems: "center",
+  },
+  emptyStateText: {
+    marginTop: 16,
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  emptyStateSubtext: {
+    marginTop: 8,
+    fontSize: 14,
+    opacity: 0.6,
+    textAlign: "center",
+  },
+  statsGrid: {
+    flexDirection: "row",
+    marginTop: 12,
+    gap: 12,
+  },
+  statItem: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "rgba(0,0,0,0.05)",
+    alignItems: "center",
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  statLabel: {
+    fontSize: 12,
+    marginTop: 4,
+    opacity: 0.7,
   },
 });
