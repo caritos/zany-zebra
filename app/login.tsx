@@ -13,7 +13,6 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { supabase } from "@/lib/supabase";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { router } from "expo-router";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -46,7 +45,7 @@ export default function LoginScreen() {
 
       if (emailExists) {
         // Email exists, try to sign in
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -54,12 +53,11 @@ export default function LoginScreen() {
         if (error) {
           Alert.alert("Login Error", error.message);
         } else {
-          // Navigate to home screen
-          router.replace("/(tabs)");
+          // Navigation will happen automatically via auth state change
         }
       } else {
         // Email doesn't exist, create new account
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -71,17 +69,17 @@ export default function LoginScreen() {
           Alert.alert("Sign Up Error", error.message);
         } else {
           // Auto sign in after sign up since email confirmation is disabled
-          const { data: signInData, error: signInError } =
-            await supabase.auth.signInWithPassword({
+          const { error: signInError } = await supabase.auth.signInWithPassword(
+            {
               email,
               password,
-            });
+            },
+          );
 
           if (signInError) {
             Alert.alert("Login Error", signInError.message);
           } else {
-            // Navigate to home screen
-            router.replace("/(tabs)");
+            // Navigation will happen automatically via auth state change
           }
         }
       }
@@ -147,7 +145,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           <ThemedText style={styles.helpText}>
-            We'll automatically sign you in or create a new account
+            We&apos;ll automatically sign you in or create a new account
           </ThemedText>
         </View>
       </ThemedView>

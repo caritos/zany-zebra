@@ -10,7 +10,6 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { router } from "expo-router";
 
 interface DatabaseChange {
   id: string;
@@ -29,8 +28,7 @@ export default function PreviewScreen() {
     if (error) {
       Alert.alert("Error", error.message);
     } else {
-      Alert.alert("Success", "You have been signed out");
-      router.replace("/(tabs)/login");
+      // Navigation will happen automatically via auth state change
     }
   };
 
