@@ -1,3 +1,7 @@
+# 20250323
+- setup jest to have unit test cases
+- all the test cases should be in the /tests folder
+
 # 20250922
 - i can run the command `npm run test:e2e` to test the db conneciton
 - i'm trying to setup my supabase connection
