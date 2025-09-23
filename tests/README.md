@@ -1,0 +1,5 @@
+- npm run test - Run all tests
+- npm run test:unit - Run only unit tests
+- npm run test:e2e - Run only e2e/integration tests
+- npm run test:all - Run all tests in /tests directory
+- npm run test:watch - Run tests in watch mode
