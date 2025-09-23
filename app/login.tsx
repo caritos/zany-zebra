@@ -31,6 +31,38 @@ export default function LoginScreen() {
     return !!data && !error;
   };
 
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email || !isValidEmail(email)) {
+      Alert.alert("Error", "Please enter a valid email address first");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Don't provide redirectTo - let Supabase use its hosted page
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+      if (error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert(
+          "Password Reset Email Sent",
+          "Please check your email for the password reset link. You will be directed to reset your password. After resetting, return to the app to log in with your new password.",
+          [{ text: "OK" }],
+        );
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to send reset email");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAuth = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Please fill in all fields");
@@ -147,6 +179,25 @@ export default function LoginScreen() {
           <ThemedText style={styles.helpText}>
             We&apos;ll automatically sign you in or create a new account
           </ThemedText>
+
+          <TouchableOpacity
+            style={[
+              styles.forgotPasswordButton,
+              (!email || !isValidEmail(email)) && styles.forgotPasswordDisabled,
+            ]}
+            onPress={handleForgotPassword}
+            disabled={!email || !isValidEmail(email) || isLoading}
+          >
+            <ThemedText
+              style={[
+                styles.forgotPasswordText,
+                (!email || !isValidEmail(email)) &&
+                  styles.forgotPasswordTextDisabled,
+              ]}
+            >
+              Forgot Password?
+            </ThemedText>
+          </TouchableOpacity>
         </View>
       </ThemedView>
     </KeyboardAvoidingView>
@@ -218,5 +269,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     opacity: 0.6,
     textAlign: "center",
+  },
+  forgotPasswordButton: {
+    marginTop: 20,
+    padding: 12,
+    alignItems: "center",
+  },
+  forgotPasswordDisabled: {
+    opacity: 0.4,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: "#007AFF",
+    fontWeight: "500",
+  },
+  forgotPasswordTextDisabled: {
+    color: "#999",
   },
 });

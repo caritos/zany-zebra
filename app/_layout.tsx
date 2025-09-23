@@ -27,6 +27,12 @@ function RootLayoutNav() {
 
       // Check if user is in the right navigation flow
       const inAuthGroup = segments[0] === "(tabs)";
+      const isResetPassword = segments[0] === "reset-password";
+
+      // Allow reset-password route regardless of session
+      if (isResetPassword) {
+        return;
+      }
 
       if (!session && inAuthGroup) {
         // Redirect to login if not authenticated
@@ -42,6 +48,7 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="reset-password" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="modal"

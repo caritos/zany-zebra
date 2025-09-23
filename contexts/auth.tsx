@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import * as Linking from "expo-linking";
 
 type AuthContextData = {
   session: Session | null;
@@ -19,6 +20,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Handle deep linking
+    const handleDeepLink = (url: string) => {
+      if (url) {
+        const parsedUrl = Linking.parse(url);
+
+        // Check if this is a password recovery link
+        if (
+          parsedUrl.hostname === "reset-password" ||
+          parsedUrl.path === "reset-password"
+        ) {
+          // Extract the hash fragment which contains the tokens
+          const hashParams = parsedUrl.queryParams;
+          if (hashParams?.access_token && hashParams?.refresh_token) {
+            // Set the session with the tokens from the URL
+            supabase.auth.setSession({
+              access_token: hashParams.access_token as string,
+              refresh_token: hashParams.refresh_token as string,
+            });
+          }
+        }
+      }
+    };
+
+    // Check for initial URL (app opened from link)
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink(url);
+    });
+
+    // Listen for URL changes (app already open)
+    const urlSubscription = Linking.addEventListener("url", (event) => {
+      handleDeepLink(event.url);
+    });
+
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -32,7 +66,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      urlSubscription.remove();
+    };
   }, []);
 
   return (
