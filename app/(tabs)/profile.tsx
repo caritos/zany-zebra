@@ -9,49 +9,13 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/auth";
-import { useEffect, useState, useCallback } from "react";
+import { useProfile } from "@/hooks/useProfile";
+import { ZipCodeEditor } from "@/components/profile/ZipCodeEditor";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-
-interface Profile {
-  id: string;
-  email: string;
-  created_at: string;
-  updated_at: string;
-}
 
 export default function ProfileScreen() {
   const { session } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchProfile = useCallback(async () => {
-    if (!session?.user?.id) return;
-
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching profile:", error);
-      } else {
-        setProfile(data);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [session?.user?.id]);
-
-  useEffect(() => {
-    if (session?.user) {
-      fetchProfile();
-    }
-  }, [session, fetchProfile]);
+  const { profile, loading, error, updateZipCode } = useProfile();
 
   const handleSignOut = async () => {
     Alert.alert(
@@ -99,6 +63,12 @@ export default function ProfileScreen() {
         <ThemedView style={styles.loadingContainer}>
           <ThemedText>Loading profile...</ThemedText>
         </ThemedView>
+      ) : error ? (
+        <ThemedView style={styles.errorContainer}>
+          <ThemedText style={styles.errorText}>
+            {error}
+          </ThemedText>
+        </ThemedView>
       ) : (
         <>
           <ThemedView style={styles.section}>
@@ -112,6 +82,12 @@ export default function ProfileScreen() {
                 {session?.user?.email || "Not available"}
               </ThemedText>
             </View>
+
+            <ZipCodeEditor
+              profile={profile}
+              updateZipCode={updateZipCode}
+              loading={loading}
+            />
 
             <View style={styles.infoRow}>
               <ThemedText style={styles.infoLabel}>User ID</ThemedText>
@@ -202,6 +178,15 @@ const styles = StyleSheet.create({
   loadingContainer: {
     padding: 32,
     alignItems: "center",
+  },
+  errorContainer: {
+    padding: 32,
+    alignItems: "center",
+  },
+  errorText: {
+    color: "#FF3B30",
+    fontSize: 14,
+    textAlign: "center",
   },
   section: {
     margin: 16,
