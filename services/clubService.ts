@@ -108,7 +108,19 @@ export class ClubService {
       throw new Error(`Failed to create club: ${error.message}`);
     }
 
-    return data?.[0] || { club_id: null, success: false, message: 'Unknown error' };
+    // Handle both old and new column names for compatibility
+    const result = data?.[0] || { club_id: null, success: false, message: 'Unknown error' };
+
+    // Map new column names to expected format if needed
+    if ('out_club_id' in result) {
+      return {
+        club_id: result.out_club_id,
+        success: result.out_success,
+        message: result.out_message
+      };
+    }
+
+    return result;
   }
 
   // Get a specific club by ID
