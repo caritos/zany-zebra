@@ -45,3 +45,5 @@ app-example
 # contains environment variable
 .env
 .mcp.json
+
+/logs/console.log
