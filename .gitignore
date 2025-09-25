@@ -47,3 +47,4 @@ app-example
 .mcp.json
 
 /logs/console.log
+/logs/expo.log
