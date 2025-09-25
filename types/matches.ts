@@ -37,7 +37,7 @@ export interface Match {
 export interface ClubMemberWithRating {
   user_id: string;
   email: string;
-  display_name: string;
+  nickname: string | null;
   elo_rating: number;
   matches_played: number;
   matches_won: number;

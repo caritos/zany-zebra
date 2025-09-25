@@ -3,11 +3,12 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Club } from '@/types/clubs';
 import { ClubMembersList } from './ClubMembersList';
+import { ClubMatchesList } from './ClubMatchesList';
 import { RecordMatchForm } from './RecordMatchForm';
 import { useClubMembersWithRatings } from '@/hooks/useMatches';
 import { supabase } from '@/lib/supabase';
@@ -20,6 +21,7 @@ interface ClubPageProps {
 export const ClubPage: React.FC<ClubPageProps> = ({ club, onBack }) => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [showRecordMatch, setShowRecordMatch] = useState(false);
+  const [activeTab, setActiveTab] = useState<'members' | 'matches'>('members');
 
   const {
     members,
@@ -52,10 +54,10 @@ export const ClubPage: React.FC<ClubPageProps> = ({ club, onBack }) => {
     refetch(); // Refresh the members list to show updated ratings
   };
 
-  const canRecordMatch = members.length >= 2;
+  const canRecordMatch = members.length >= 1; // Only need current user, can add guests
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
       <View style={styles.header}>
         {onBack && (
@@ -72,6 +74,26 @@ export const ClubPage: React.FC<ClubPageProps> = ({ club, onBack }) => {
             <Text style={styles.clubDescription}>{club.description}</Text>
           )}
         </View>
+      </View>
+
+      {/* Tab Navigation */}
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'members' && styles.activeTab]}
+          onPress={() => setActiveTab('members')}
+        >
+          <Text style={[styles.tabText, activeTab === 'members' && styles.activeTabText]}>
+            Members
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'matches' && styles.activeTab]}
+          onPress={() => setActiveTab('matches')}
+        >
+          <Text style={[styles.tabText, activeTab === 'matches' && styles.activeTabText]}>
+            Matches
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Action Bar */}
@@ -94,20 +116,27 @@ export const ClubPage: React.FC<ClubPageProps> = ({ club, onBack }) => {
 
         {!canRecordMatch && (
           <Text style={styles.disabledHint}>
-            Need at least 2 members to record matches
+            Need to be a club member to record matches
           </Text>
         )}
       </View>
 
-      {/* Members List */}
-      <ClubMembersList
-        members={members}
-        loading={loading}
-        error={error}
-        onRefresh={refetch}
-        onMemberPress={handleMemberPress}
-        currentUserId={currentUserId}
-      />
+      {/* Tab Content */}
+      {activeTab === 'members' ? (
+        <ClubMembersList
+          members={members}
+          loading={loading}
+          error={error}
+          onRefresh={refetch}
+          onMemberPress={handleMemberPress}
+          currentUserId={currentUserId}
+        />
+      ) : (
+        <ClubMatchesList
+          clubId={club.id}
+          onRefresh={refetch}
+        />
+      )}
 
       {/* Record Match Modal */}
       <RecordMatchForm
@@ -158,6 +187,30 @@ const styles = {
     fontSize: 14,
     color: '#555',
     lineHeight: 20,
+  },
+  tabBar: {
+    flexDirection: 'row' as const,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: 'center' as const,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  activeTab: {
+    borderBottomColor: '#007AFF',
+  },
+  tabText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  activeTabText: {
+    color: '#007AFF',
+    fontWeight: '600' as const,
   },
   actionBar: {
     backgroundColor: '#fff',

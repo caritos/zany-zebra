@@ -45,7 +45,7 @@ export const ClubMembersList: React.FC<ClubMembersListProps> = ({
         <View style={styles.memberInfo}>
           <View style={styles.memberHeader}>
             <Text style={[styles.memberName, isCurrentUser && styles.currentUserName]}>
-              {item.display_name}
+              {item.nickname ? `${item.nickname} (${item.email})` : item.email}
               {isCurrentUser && ' (You)'}
             </Text>
             <View style={styles.ratingBadge}>

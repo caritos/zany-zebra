@@ -3,12 +3,26 @@ import { supabase } from '@/lib/supabase';
 export interface Profile {
   id: string;
   email: string;
+  display_name: string;
+  username: string;
+  nickname: string | null;
+  phone_number: string | null;
   zip_code: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export interface UpdateZipCodeResult {
+  success: boolean;
+  message: string;
+}
+
+export interface UpdateNicknameResult {
+  success: boolean;
+  message: string;
+}
+
+export interface UpdatePhoneNumberResult {
   success: boolean;
   message: string;
 }
@@ -49,6 +63,56 @@ export class ProfileService {
     }
 
     return data?.[0] || { success: false, message: 'Unknown error' };
+  }
+
+  // Update user's nickname
+  static async updateNickname(nickname: string): Promise<UpdateNicknameResult> {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        nickname: nickname.trim() || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to update nickname: ${error.message}`);
+    }
+
+    return { success: true, message: 'Nickname updated successfully' };
+  }
+
+  // Update user's phone number
+  static async updatePhoneNumber(phoneNumber: string): Promise<UpdatePhoneNumberResult> {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        phone_number: phoneNumber.trim() || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to update phone number: ${error.message}`);
+    }
+
+    return { success: true, message: 'Phone number updated successfully' };
   }
 
   // Get user's zip code only

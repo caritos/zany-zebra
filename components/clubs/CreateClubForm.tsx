@@ -155,7 +155,7 @@ export const CreateClubForm: React.FC<CreateClubFormProps> = ({
               <Text style={styles.errorText}>{errors.zipCode}</Text>
             )}
             <Text style={styles.helpText}>
-              We'll use this to set your club's location and find nearby players.
+              We&apos;ll use this to set your club&apos;s location and find nearby players.
               Multiple clubs can exist in the same zip code.
             </Text>
           </View>

@@ -2,8 +2,11 @@ import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
+  const router = useRouter();
+
   return (
     <ScrollView style={styles.container}>
       <ThemedView style={styles.header}>
@@ -14,19 +17,25 @@ export default function HomeScreen() {
       </ThemedView>
 
       <ThemedView style={styles.quickActions}>
-        <TouchableOpacity style={styles.actionCard}>
-          <IconSymbol name="plus.circle.fill" size={40} color="#007AFF" />
-          <ThemedText style={styles.actionTitle}>New Match</ThemedText>
+        <TouchableOpacity
+          style={styles.actionCard}
+          onPress={() => router.push("/(tabs)/clubs")}
+        >
+          <IconSymbol name="person.3.fill" size={40} color="#007AFF" />
+          <ThemedText style={styles.actionTitle}>Find Clubs</ThemedText>
           <ThemedText style={styles.actionDescription}>
-            Start tracking a new match
+            Join clubs and record matches
           </ThemedText>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionCard}>
-          <IconSymbol name="clock.fill" size={40} color="#34C759" />
-          <ThemedText style={styles.actionTitle}>Quick Match</ThemedText>
+        <TouchableOpacity
+          style={styles.actionCard}
+          onPress={() => router.push("/(tabs)/profile")}
+        >
+          <IconSymbol name="person.circle.fill" size={40} color="#34C759" />
+          <ThemedText style={styles.actionTitle}>My Profile</ThemedText>
           <ThemedText style={styles.actionDescription}>
-            Record a quick practice session
+            View your tennis stats
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>

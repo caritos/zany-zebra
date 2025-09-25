@@ -1,3 +1,4 @@
+import React from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -11,11 +12,13 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/auth";
 import { useProfile } from "@/hooks/useProfile";
 import { ZipCodeEditor } from "@/components/profile/ZipCodeEditor";
+import { NicknameEditor } from "@/components/profile/NicknameEditor";
+import { PhoneNumberEditor } from "@/components/profile/PhoneNumberEditor";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 
 export default function ProfileScreen() {
   const { session } = useAuth();
-  const { profile, loading, error, updateZipCode } = useProfile();
+  const { profile, loading, error, updateZipCode, updateNickname, updatePhoneNumber } = useProfile();
 
   const handleSignOut = async () => {
     Alert.alert(
@@ -82,6 +85,18 @@ export default function ProfileScreen() {
                 {session?.user?.email || "Not available"}
               </ThemedText>
             </View>
+
+            <NicknameEditor
+              profile={profile}
+              updateNickname={updateNickname}
+              loading={loading}
+            />
+
+            <PhoneNumberEditor
+              profile={profile}
+              updatePhoneNumber={updatePhoneNumber}
+              loading={loading}
+            />
 
             <ZipCodeEditor
               profile={profile}
