@@ -10,6 +10,15 @@ import {
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
 
+interface MatchSet {
+  set_number: number;
+  team1_games: number;
+  team2_games: number;
+  team1_tiebreak_points: number | null;
+  team2_tiebreak_points: number | null;
+  winner: number;
+}
+
 interface MatchRecord {
   id: number;
   club_id: number;
@@ -24,19 +33,19 @@ interface MatchRecord {
   team2_player1_guest_name: string | null;
   team2_player2_user_id: string | null;
   team2_player2_guest_name: string | null;
-  // Scores
-  team1_sets: number;
-  team2_sets: number;
+  // Winner (1 or 2)
   winner: number;
   match_date: string;
   notes: string | null;
   recorded_by: string;
   // Relations
-  team1_player1_user: { display_name: string; username: string } | null;
-  team1_player2_user: { display_name: string; username: string } | null;
-  team2_player1_user: { display_name: string; username: string } | null;
-  team2_player2_user: { display_name: string; username: string } | null;
-  recorded_by_user: { display_name: string; username: string };
+  team1_player1_user: { email: string; nickname: string | null } | null;
+  team1_player2_user: { email: string; nickname: string | null } | null;
+  team2_player1_user: { email: string; nickname: string | null } | null;
+  team2_player2_user: { email: string; nickname: string | null } | null;
+  recorded_by_user: { email: string; nickname: string | null };
+  // Sets
+  match_sets: MatchSet[];
 }
 
 interface ClubMatchesListProps {
@@ -73,38 +82,112 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
     try {
       setLoading(true);
 
-      const { data, error } = await supabase
+      // First, get the basic match records
+      const { data: matchData, error: matchError } = await supabase
         .from('match_records')
-        .select(`
-          *,
-          team1_player1_user:team1_player1_user_id (
-            display_name,
-            username
-          ),
-          team1_player2_user:team1_player2_user_id (
-            display_name,
-            username
-          ),
-          team2_player1_user:team2_player1_user_id (
-            display_name,
-            username
-          ),
-          team2_player2_user:team2_player2_user_id (
-            display_name,
-            username
-          ),
-          recorded_by_user:recorded_by!inner (
-            display_name,
-            username
-          )
-        `)
+        .select('*')
         .eq('club_id', clubId)
         .order('match_date', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (matchError) throw matchError;
 
-      setMatches(data || []);
+      if (!matchData || matchData.length === 0) {
+        setMatches([]);
+        return;
+      }
+
+      // Fetch sets for all matches
+      const matchIds = matchData.map(m => m.id);
+      const { data: setsData, error: setsError } = await supabase
+        .from('match_sets')
+        .select('*')
+        .in('match_id', matchIds)
+        .order('match_id')
+        .order('set_number');
+
+      if (setsError) {
+        console.warn('Could not fetch match sets:', setsError);
+      }
+
+      console.log('Raw sets data from database:', setsData);
+
+      // Group sets by match_id
+      const setsByMatch = new Map<number, MatchSet[]>();
+      if (setsData) {
+        setsData.forEach((set) => {
+          if (!setsByMatch.has(set.match_id)) {
+            setsByMatch.set(set.match_id, []);
+          }
+          setsByMatch.get(set.match_id)!.push({
+            set_number: set.set_number,
+            team1_games: set.team1_games,
+            team2_games: set.team2_games,
+            team1_tiebreak_points: set.team1_tiebreak_points,
+            team2_tiebreak_points: set.team2_tiebreak_points,
+            winner: set.winner
+          });
+        });
+      }
+
+      console.log('Sets grouped by match:', Object.fromEntries(setsByMatch));
+
+      // Collect all unique user IDs from the matches
+      const userIds = new Set<string>();
+      matchData.forEach((match) => {
+        if (match.team1_player1_user_id) userIds.add(match.team1_player1_user_id);
+        if (match.team1_player2_user_id) userIds.add(match.team1_player2_user_id);
+        if (match.team2_player1_user_id) userIds.add(match.team2_player1_user_id);
+        if (match.team2_player2_user_id) userIds.add(match.team2_player2_user_id);
+        if (match.recorded_by) userIds.add(match.recorded_by);
+      });
+
+      // Fetch profile data for all users
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, email, nickname')
+        .in('id', Array.from(userIds));
+
+      if (profileError) {
+        console.warn('Could not fetch profiles:', profileError);
+      }
+
+      // Create a map of user profiles
+      const profileMap = new Map();
+      if (profiles) {
+        profiles.forEach((profile) => {
+          profileMap.set(profile.id, profile);
+        });
+      }
+
+      // Combine match data with profile information and sets
+      const matchesWithProfiles = matchData.map((match) => ({
+        ...match,
+        team1_player1_user: match.team1_player1_user_id
+          ? profileMap.get(match.team1_player1_user_id) || { email: 'Unknown', nickname: null }
+          : null,
+        team1_player2_user: match.team1_player2_user_id
+          ? profileMap.get(match.team1_player2_user_id) || { email: 'Unknown', nickname: null }
+          : null,
+        team2_player1_user: match.team2_player1_user_id
+          ? profileMap.get(match.team2_player1_user_id) || { email: 'Unknown', nickname: null }
+          : null,
+        team2_player2_user: match.team2_player2_user_id
+          ? profileMap.get(match.team2_player2_user_id) || { email: 'Unknown', nickname: null }
+          : null,
+        recorded_by_user: match.recorded_by
+          ? profileMap.get(match.recorded_by) || { email: 'Unknown', nickname: null }
+          : { email: 'Unknown', nickname: null },
+        match_sets: setsByMatch.get(match.id) || []
+      }));
+
+      console.log('Final matches with sets:', matchesWithProfiles.map(m => ({
+        id: m.id,
+        sets_count: m.match_sets.length,
+        sets: m.match_sets
+      })));
+
+      setMatches(matchesWithProfiles);
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to load matches');
     } finally {
@@ -169,12 +252,12 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
   };
 
   const getPlayerInfo = (
-    userObj: { display_name: string; username: string } | null,
+    userObj: { email: string; nickname: string | null } | null,
     guestName: string | null
   ): PlayerInfo => {
     if (userObj) {
       return {
-        name: userObj.display_name,
+        name: userObj.nickname || userObj.email.split('@')[0], // Use nickname if available, else email prefix
         isGuest: false,
         userId: null, // We don't need the userId for display, just checking if it's a user
       };
@@ -255,61 +338,104 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
       ? getPlayerInfo(match.team2_player2_user, match.team2_player2_guest_name)
       : null;
 
-    const winnerTeam = match.winner === 1 ? 'Team 1' : 'Team 2';
+    const isTeam1Winner = match.winner === 1;
+    const isTeam2Winner = match.winner === 2;
 
     return (
       <View key={match.id} style={styles.matchCard}>
         <View style={styles.matchHeader}>
-          <View style={styles.matchInfo}>
-            <Text style={styles.matchDate}>{formatDate(match.match_date)}</Text>
-            <View style={styles.matchTypeBadge}>
-              <Text style={styles.matchTypeText}>
-                {match.match_type.charAt(0).toUpperCase() + match.match_type.slice(1)}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.winnerBadge}>
-            <Text style={styles.winnerText}>
-              {winnerTeam} wins
+          <Text style={styles.matchDate}>{formatDate(match.match_date)}</Text>
+        </View>
+
+        {/* Team 1 */}
+        <View style={[styles.scoreRow, isTeam1Winner && styles.winnerRow]}>
+          <View style={styles.playerSection}>
+            <Text style={[styles.playerNameInScore, isTeam1Winner && styles.winnerText]}>
+              {team1Player1Info.name}
+              {team1Player2Info && ` / ${team1Player2Info.name}`}
             </Text>
+            {isTeam1Winner && (
+              <View style={styles.winnerIndicatorLeft}>
+                <Text style={styles.winnerArrow}>◀</Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.scoresSection}>
+            {match.match_sets && match.match_sets.length > 0 ? (
+              <>
+                {match.match_sets.map((set, index) => (
+                  <View key={index} style={styles.setScoreContainer}>
+                    <Text
+                      style={[
+                        styles.setScore,
+                        set.winner === 1 ? styles.setWon : styles.setLost
+                      ]}
+                    >
+                      {set.team1_games}
+                    </Text>
+                    {set.team1_tiebreak_points !== null && (
+                      <Text style={styles.tiebreakScore}>
+                        {set.team1_tiebreak_points}
+                      </Text>
+                    )}
+                  </View>
+                ))}
+              </>
+            ) : (
+              <Text style={[styles.setScore, isTeam1Winner ? styles.setWon : styles.setLost]}>
+                {isTeam1Winner ? '1' : '0'}
+              </Text>
+            )}
           </View>
         </View>
 
-        <View style={styles.matchContent}>
-          <View style={styles.teamsContainer}>
-            {/* Team 1 */}
-            <View style={styles.team}>
-              <View style={styles.teamHeader}>
-                <Text style={styles.teamLabel}>Team 1</Text>
-                <Text style={styles.teamScore}>{match.team1_sets}</Text>
+        {/* Team 2 */}
+        <View style={[styles.scoreRow, isTeam2Winner && styles.winnerRow]}>
+          <View style={styles.playerSection}>
+            <Text style={[styles.playerNameInScore, isTeam2Winner && styles.winnerText]}>
+              {team2Player1Info.name}
+              {team2Player2Info && ` / ${team2Player2Info.name}`}
+            </Text>
+            {isTeam2Winner && (
+              <View style={styles.winnerIndicatorLeft}>
+                <Text style={styles.winnerArrow}>◀</Text>
               </View>
-              {renderPlayer(team1Player1Info, match, 1, 1)}
-              {team1Player2Info && renderPlayer(team1Player2Info, match, 1, 2)}
-            </View>
-
-            <View style={styles.vsContainer}>
-              <Text style={styles.vsText}>VS</Text>
-            </View>
-
-            {/* Team 2 */}
-            <View style={styles.team}>
-              <View style={styles.teamHeader}>
-                <Text style={styles.teamLabel}>Team 2</Text>
-                <Text style={styles.teamScore}>{match.team2_sets}</Text>
-              </View>
-              {renderPlayer(team2Player1Info, match, 2, 1)}
-              {team2Player2Info && renderPlayer(team2Player2Info, match, 2, 2)}
-            </View>
+            )}
+          </View>
+          <View style={styles.scoresSection}>
+            {match.match_sets && match.match_sets.length > 0 ? (
+              <>
+                {match.match_sets.map((set, index) => (
+                  <View key={index} style={styles.setScoreContainer}>
+                    <Text
+                      style={[
+                        styles.setScore,
+                        set.winner === 2 ? styles.setWon : styles.setLost
+                      ]}
+                    >
+                      {set.team2_games}
+                    </Text>
+                    {set.team2_tiebreak_points !== null && (
+                      <Text style={styles.tiebreakScore}>
+                        {set.team2_tiebreak_points}
+                      </Text>
+                    )}
+                  </View>
+                ))}
+              </>
+            ) : (
+              <Text style={[styles.setScore, isTeam2Winner ? styles.setWon : styles.setLost]}>
+                {isTeam2Winner ? '1' : '0'}
+              </Text>
+            )}
           </View>
         </View>
 
         {match.notes && (
-          <Text style={styles.matchNotes}>{match.notes}</Text>
+          <View style={styles.matchFooter}>
+            <Text style={styles.matchNotes}>{match.notes}</Text>
+          </View>
         )}
-
-        <Text style={styles.recordedBy}>
-          Recorded by: {match.recorded_by_user.display_name}
-        </Text>
       </View>
     );
   };
@@ -394,82 +520,98 @@ const styles = {
   },
   matchCard: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 8,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   matchHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    marginBottom: 12,
-  },
-  matchInfo: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   matchDate: {
     fontSize: 12,
+    color: '#666',
+    textAlign: 'right' as const,
+  },
+  scoreRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  winnerRow: {
+    backgroundColor: '#f8f9fa',
+  },
+  playerSection: {
+    flex: 1,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+  },
+  playerNameInScore: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500' as const,
+  },
+  scoresSection: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 16,
+  },
+  setScoreContainer: {
+    alignItems: 'center' as const,
+    minWidth: 40,
+  },
+  setScore: {
+    fontSize: 24,
+    fontWeight: '600' as const,
+    textAlign: 'center' as const,
+  },
+  setWon: {
+    color: '#000',
+  },
+  setLost: {
     color: '#999',
   },
-  matchTypeBadge: {
-    backgroundColor: '#E3F2FD',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  matchTypeText: {
-    color: '#1976D2',
+  tiebreakScore: {
     fontSize: 10,
-    fontWeight: '600' as const,
+    color: '#666',
+    marginTop: 2,
   },
-  winnerBadge: {
-    backgroundColor: '#34C759',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+  winnerIndicator: {
+    marginLeft: 12,
   },
-  winnerText: {
-    color: '#fff',
+  winnerIndicatorLeft: {
+    marginLeft: 8,
+  },
+  winnerArrow: {
+    fontSize: 20,
+    color: '#000',
+  },
+  matchFooter: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  matchLocation: {
     fontSize: 12,
-    fontWeight: '600' as const,
-  },
-  matchContent: {
-    marginBottom: 8,
-  },
-  teamsContainer: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'flex-start' as const,
-  },
-  team: {
-    flex: 1,
-  },
-  teamHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    marginBottom: 8,
-    paddingBottom: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-  },
-  teamLabel: {
-    fontSize: 14,
-    fontWeight: '600' as const,
     color: '#666',
   },
-  teamScore: {
-    fontSize: 20,
-    fontWeight: 'bold' as const,
-    color: '#333',
+  matchNotes: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+    fontStyle: 'italic' as const,
   },
+  // Keep these for other components that might use them
   playerRow: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
@@ -511,27 +653,7 @@ const styles = {
     fontSize: 10,
     fontWeight: '600' as const,
   },
-  vsContainer: {
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    paddingHorizontal: 8,
-  },
-  vsText: {
-    fontSize: 16,
-    fontWeight: 'bold' as const,
-    color: '#999',
-  },
-  matchNotes: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic' as const,
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  recordedBy: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'right' as const,
-    marginTop: 8,
+  winnerText: {
+    fontWeight: '600' as const,
   },
 };
