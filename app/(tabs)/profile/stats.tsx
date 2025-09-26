@@ -15,30 +15,19 @@ export default function StatsTab() {
   const borderColor = useThemeColor({}, "icon");
   const tintColor = useThemeColor({}, "tint");
 
-  const statsData = [
+  const topStats = [
     {
-      label: "Matches Played",
-      value: "42",
-      icon: "sportscourt" as any,
-      trend: "+5 this month",
+      label: "TOTAL MATCHES",
+      value: "6",
     },
     {
-      label: "Win Rate",
-      value: "62%",
-      icon: "trophy" as any,
-      trend: "↑ 3% from last month",
+      label: "WIN RATE",
+      value: "100%",
+      highlight: true,
     },
     {
-      label: "Current Streak",
-      value: "3 wins",
-      icon: "flame" as any,
-      trend: "Best: 7 wins",
-    },
-    {
-      label: "Club Rank",
-      value: "#8",
-      icon: "chart.line.uptrend.xyaxis" as any,
-      trend: "Top 20%",
+      label: "W-L RECORD",
+      value: "6-0",
     },
   ];
 
@@ -51,91 +40,72 @@ export default function StatsTab() {
         </ThemedText>
       </ThemedView>
 
-      <View style={styles.statsGrid}>
-        {statsData.map((stat, index) => (
-          <View
-            key={index}
-            style={[styles.statCard, { borderColor: borderColor + "20" }]}
-          >
-            <View style={[styles.iconContainer, { backgroundColor: tintColor + "15" }]}>
-              <IconSymbol name={stat.icon} size={28} color={tintColor} />
-            </View>
-            <ThemedText style={styles.statValue}>{stat.value}</ThemedText>
-            <ThemedText style={[styles.statLabel, { color: textColor + "60" }]}>
-              {stat.label}
+      <View style={styles.topStatsContainer}>
+        {topStats.map((stat, index) => (
+          <View key={index} style={styles.topStatItem}>
+            <ThemedText
+              style={[
+                styles.topStatValue,
+                stat.highlight && { color: tintColor }
+              ]}
+            >
+              {stat.value}
             </ThemedText>
-            <ThemedText style={[styles.statTrend, { color: tintColor }]}>
-              {stat.trend}
+            <ThemedText style={[styles.topStatLabel, { color: textColor + "60" }]}>
+              {stat.label}
             </ThemedText>
           </View>
         ))}
       </View>
 
       <ThemedView style={[styles.section, { borderColor: borderColor + "20" }]}>
-        <ThemedText style={styles.sectionTitle}>Recent Activity</ThemedText>
+        <ThemedText style={styles.sectionTitle}>Match Breakdown</ThemedText>
 
-        <View style={styles.activityItem}>
-          <View style={[styles.activityDot, { backgroundColor: "#4CAF50" }]} />
-          <View style={styles.activityContent}>
-            <ThemedText style={styles.activityText}>Won match vs. John D.</ThemedText>
-            <ThemedText style={[styles.activityTime, { color: textColor + "60" }]}>
-              2 hours ago • 6-4, 7-5
+        <View style={styles.breakdownContainer}>
+          <View style={styles.breakdownItem}>
+            <ThemedText style={styles.breakdownCategory}>Singles</ThemedText>
+            <ThemedText style={styles.breakdownValue}>6-0</ThemedText>
+            <ThemedText style={[styles.breakdownPercentage, { color: textColor + "60" }]}>
+              (100%)
             </ThemedText>
           </View>
-        </View>
 
-        <View style={styles.activityItem}>
-          <View style={[styles.activityDot, { backgroundColor: "#FF9500" }]} />
-          <View style={styles.activityContent}>
-            <ThemedText style={styles.activityText}>Lost match vs. Sarah M.</ThemedText>
-            <ThemedText style={[styles.activityTime, { color: textColor + "60" }]}>
-              Yesterday • 4-6, 5-7
-            </ThemedText>
-          </View>
-        </View>
-
-        <View style={styles.activityItem}>
-          <View style={[styles.activityDot, { backgroundColor: "#4CAF50" }]} />
-          <View style={styles.activityContent}>
-            <ThemedText style={styles.activityText}>Won match vs. Mike R.</ThemedText>
-            <ThemedText style={[styles.activityTime, { color: textColor + "60" }]}>
-              3 days ago • 6-3, 6-2
+          <View style={styles.breakdownItem}>
+            <ThemedText style={styles.breakdownCategory}>Doubles</ThemedText>
+            <ThemedText style={styles.breakdownValue}>0-0</ThemedText>
+            <ThemedText style={[styles.breakdownPercentage, { color: textColor + "60" }]}>
+              (0%)
             </ThemedText>
           </View>
         </View>
       </ThemedView>
 
       <ThemedView style={[styles.section, { borderColor: borderColor + "20" }]}>
-        <ThemedText style={styles.sectionTitle}>Performance Metrics</ThemedText>
+        <ThemedText style={styles.sectionTitle}>Detailed Stats</ThemedText>
 
-        <View style={styles.metricRow}>
-          <ThemedText style={[styles.metricLabel, { color: textColor + "80" }]}>
-            Average Game Duration
-          </ThemedText>
-          <ThemedText style={styles.metricValue}>45 min</ThemedText>
-        </View>
+        <View style={styles.detailedStatsContainer}>
+          <View style={styles.detailedStatItem}>
+            <ThemedText style={styles.detailedStatValue}>6/6</ThemedText>
+            <ThemedText style={[styles.detailedStatLabel, { color: textColor + "60" }]}>
+              SETS WON
+            </ThemedText>
+            <ThemedText style={[styles.detailedStatPercentage, { color: textColor + "60" }]}>
+              (100%)
+            </ThemedText>
+          </View>
 
-        <View style={styles.metricRow}>
-          <ThemedText style={[styles.metricLabel, { color: textColor + "80" }]}>
-            Sets Won
-          </ThemedText>
-          <ThemedText style={styles.metricValue}>68/110</ThemedText>
-        </View>
-
-        <View style={styles.metricRow}>
-          <ThemedText style={[styles.metricLabel, { color: textColor + "80" }]}>
-            Games Won
-          </ThemedText>
-          <ThemedText style={styles.metricValue}>412/650</ThemedText>
-        </View>
-
-        <View style={styles.metricRow}>
-          <ThemedText style={[styles.metricLabel, { color: textColor + "80" }]}>
-            Aces per Match
-          </ThemedText>
-          <ThemedText style={styles.metricValue}>3.2</ThemedText>
+          <View style={styles.detailedStatItem}>
+            <ThemedText style={styles.detailedStatValue}>36/56</ThemedText>
+            <ThemedText style={[styles.detailedStatLabel, { color: textColor + "60" }]}>
+              GAMES WON
+            </ThemedText>
+            <ThemedText style={[styles.detailedStatPercentage, { color: textColor + "60" }]}>
+              (64%)
+            </ThemedText>
+          </View>
         </View>
       </ThemedView>
+
     </ScrollView>
   );
 }
@@ -156,39 +126,65 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
   },
-  statsGrid: {
+  topStatsContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    padding: 10,
+    justifyContent: "space-around",
+    paddingVertical: 20,
+    paddingHorizontal: 16,
   },
-  statCard: {
-    width: "47%",
-    margin: "1.5%",
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
+  topStatItem: {
     alignItems: "center",
   },
-  iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
+  topStatValue: {
+    fontSize: 32,
+    fontWeight: "bold",
+    marginBottom: 8,
   },
-  statValue: {
+  topStatLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+  },
+  breakdownContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  breakdownItem: {
+    alignItems: "center",
+  },
+  breakdownCategory: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  breakdownValue: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 4,
   },
-  statLabel: {
-    fontSize: 13,
-    marginBottom: 4,
+  breakdownPercentage: {
+    fontSize: 14,
   },
-  statTrend: {
+  detailedStatsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  detailedStatItem: {
+    alignItems: "center",
+  },
+  detailedStatValue: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  detailedStatLabel: {
     fontSize: 12,
     fontWeight: "600",
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  detailedStatPercentage: {
+    fontSize: 14,
   },
   section: {
     margin: 16,
