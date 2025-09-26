@@ -83,7 +83,6 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
     setShowCreateForm(false);
     refetchMyClubs(); // Refresh my clubs
     refetchNearby(); // Refresh nearby clubs
-    Alert.alert('Success', 'Your club has been created! Other players in your area can now find and join it.');
   };
 
   const handleJoinClub = async (clubId: number) => {
