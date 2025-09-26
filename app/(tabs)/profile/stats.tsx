@@ -8,8 +8,6 @@ import { useProfile } from "@/hooks/useProfile";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
 export default function StatsTab() {
-  const { session } = useAuth();
-  const { profile } = useProfile();
   const backgroundColor = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
   const borderColor = useThemeColor({}, "icon");

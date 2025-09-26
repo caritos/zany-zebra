@@ -48,6 +48,18 @@ export default function ProfileTabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="faq"
+        options={{
+          href: null, // This hides it from tabs
+        }}
+      />
+      <Tabs.Screen
+        name="privacy-policy"
+        options={{
+          href: null, // This hides it from tabs
+        }}
+      />
     </Tabs>
   );
 }
