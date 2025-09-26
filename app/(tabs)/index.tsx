@@ -1,153 +1,41 @@
-import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useRouter } from "expo-router";
+import React, { useState } from 'react';
+import { NearbyClubsScreen } from '@/components/clubs/NearbyClubsScreen';
+import { ClubPage } from '@/components/clubs/ClubPage';
+import { ClubWithDistance, ClubSearchResult, Club } from '@/types/clubs';
+import { MyClub } from '@/types/clubMembership';
 
-export default function HomeScreen() {
-  const router = useRouter();
+type ClubItem = ClubWithDistance | ClubSearchResult | MyClub;
 
-  return (
-    <ScrollView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedText type="title">Tennis Tracker</ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Track your matches and improve your game
-        </ThemedText>
-      </ThemedView>
+export default function ClubsScreen() {
+  const [selectedClub, setSelectedClub] = useState<Club | null>(null);
 
-      <ThemedView style={styles.quickActions}>
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => router.push("/(tabs)/clubs")}
-        >
-          <IconSymbol name="person.3.fill" size={40} color="#007AFF" />
-          <ThemedText style={styles.actionTitle}>Find Clubs</ThemedText>
-          <ThemedText style={styles.actionDescription}>
-            Join clubs and record matches
-          </ThemedText>
-        </TouchableOpacity>
+  const handleClubPress = (club: ClubItem) => {
+    // Convert club item to Club type for the club page
+    const clubData: Club = {
+      id: club.club_id,
+      name: club.club_name,
+      description: 'description' in club ? club.description : ('club_description' in club ? club.club_description : undefined),
+      zip_code: club.zip_code || '',
+      city: club.city || '',
+      state: club.state || '',
+      country: 'US',
+      location: null, // Not needed for UI
+      radius_meters: 3000, // Default
+      active_players_count: club.active_players_count || 0,
+      created_at: '',
+      updated_at: '',
+    };
 
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => router.push("/(tabs)/profile")}
-        >
-          <IconSymbol name="person.circle.fill" size={40} color="#34C759" />
-          <ThemedText style={styles.actionTitle}>My Profile</ThemedText>
-          <ThemedText style={styles.actionDescription}>
-            View your tennis stats
-          </ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
+    setSelectedClub(clubData);
+  };
 
-      <ThemedView style={styles.section}>
-        <ThemedText type="subtitle">Recent Matches</ThemedText>
-        <ThemedView style={styles.emptyState}>
-          <IconSymbol name="tennis.racket" size={60} color="#8E8E93" />
-          <ThemedText style={styles.emptyStateText}>
-            No matches recorded yet
-          </ThemedText>
-          <ThemedText style={styles.emptyStateSubtext}>
-            Start tracking your first match to see your progress
-          </ThemedText>
-        </ThemedView>
-      </ThemedView>
+  const handleBackToList = () => {
+    setSelectedClub(null);
+  };
 
-      <ThemedView style={styles.section}>
-        <ThemedText type="subtitle">Quick Stats</ThemedText>
-        <ThemedView style={styles.statsGrid}>
-          <ThemedView style={styles.statItem}>
-            <ThemedText style={styles.statValue}>0</ThemedText>
-            <ThemedText style={styles.statLabel}>Total Matches</ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.statItem}>
-            <ThemedText style={styles.statValue}>0%</ThemedText>
-            <ThemedText style={styles.statLabel}>Win Rate</ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.statItem}>
-            <ThemedText style={styles.statValue}>0</ThemedText>
-            <ThemedText style={styles.statLabel}>Win Streak</ThemedText>
-          </ThemedView>
-        </ThemedView>
-      </ThemedView>
-    </ScrollView>
-  );
+  if (selectedClub) {
+    return <ClubPage club={selectedClub} onBack={handleBackToList} />;
+  }
+
+  return <NearbyClubsScreen onClubPress={handleClubPress} />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-    alignItems: "center",
-  },
-  subtitle: {
-    marginTop: 8,
-    opacity: 0.7,
-    textAlign: "center",
-  },
-  quickActions: {
-    flexDirection: "row",
-    padding: 16,
-    gap: 12,
-  },
-  actionCard: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: "rgba(0,122,255,0.1)",
-    alignItems: "center",
-  },
-  actionTitle: {
-    fontWeight: "600",
-    marginTop: 8,
-    fontSize: 16,
-  },
-  actionDescription: {
-    fontSize: 12,
-    marginTop: 4,
-    opacity: 0.7,
-    textAlign: "center",
-  },
-  section: {
-    margin: 16,
-  },
-  emptyState: {
-    padding: 32,
-    alignItems: "center",
-  },
-  emptyStateText: {
-    marginTop: 16,
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  emptyStateSubtext: {
-    marginTop: 8,
-    fontSize: 14,
-    opacity: 0.6,
-    textAlign: "center",
-  },
-  statsGrid: {
-    flexDirection: "row",
-    marginTop: 12,
-    gap: 12,
-  },
-  statItem: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: "rgba(0,0,0,0.05)",
-    alignItems: "center",
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  statLabel: {
-    fontSize: 12,
-    marginTop: 4,
-    opacity: 0.7,
-  },
-});
