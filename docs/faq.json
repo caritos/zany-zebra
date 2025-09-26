@@ -44,11 +44,11 @@
         },
         {
           "question": "What are the sorting options in the Members tab?",
-          "answer": "You can sort club members by:\n• **Name**: Alphabetical order (A-Z)\n• **Wins**: Most wins first (great for finding competitive players)\n• **Matches**: Most active players first (members who play frequently)\n• **Recent**: Recently joined members first (newest members)"
+          "answer": "You can sort club members by:\n• **Name**: Alphabetical order (A-Z) - find someone specific\n• **Rank**: By ELO rating (highest rated players first) - default leaderboard view\n• **Joined**: Recently joined members first (newest members to welcome)"
         },
         {
           "question": "What are the filter options in the Members tab?",
-          "answer": "You can filter club members by activity level:\n• **All**: Shows every club member\n• **Active**: Shows members with 3+ matches played (experienced, regular players)\n• **New**: Shows members who joined in the last 30 days (great for welcoming newcomers)\n\nActive members have an 'ACTIVE' badge, and new members have a 'NEW' badge for easy identification."
+          "answer": "You can filter club members by activity level:\n• **All**: Shows every club member\n• **Active**: Shows members who played a match within the last month (currently engaged players)\n• **New**: Shows members who joined in the last 30 days (great for welcoming newcomers)\n\nUse 'Active' to find people who are currently playing and more likely to accept match invites!"
         },
         {
           "question": "What do the member statistics show?",

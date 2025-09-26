@@ -282,14 +282,8 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
   };
 
   const handleSubmit = async () => {
-    console.log('🎾 handleSubmit called');
+    if (!validateForm()) return;
 
-    if (!validateForm()) {
-      console.log('🎾 Form validation failed');
-      return;
-    }
-
-    console.log('🎾 Form validated, setting loading to true');
     setLoading(true);
 
     try {
@@ -331,15 +325,6 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
       // Record the match using the new ELO function
       const matchType = getMatchType();
 
-      console.log('🎾 Recording match with ELO system:', {
-        clubId,
-        matchType,
-        team1Player1Data,
-        team2Player1Data,
-        winner,
-        gameScores
-      });
-
       const { data: result, error: matchError } = await supabase.rpc('record_match_with_elo', {
         p_club_id: clubId,
         p_match_type: matchType,
@@ -356,12 +341,7 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
         p_notes: notes.trim() || null,
       });
 
-      console.log('🎾 Match recording result:', { result, matchError });
-
-      if (matchError) {
-        console.error('🎾 Match recording error:', matchError);
-        throw matchError;
-      }
+      if (matchError) throw matchError;
 
       const matchResultMessage = winner === null
         ? `Match tied ${team1SetsWon}-${team2SetsWon}!`
@@ -529,10 +509,7 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
         <View style={styles.footer}>
           <TouchableOpacity
             style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-            onPress={() => {
-              console.log('🎾 Record Match button pressed');
-              handleSubmit();
-            }}
+            onPress={handleSubmit}
             disabled={loading}
           >
             {loading ? (

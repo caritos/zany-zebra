@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,13 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  ScrollView,
 } from 'react-native';
 import { ClubMemberWithRating } from '@/types/matches';
 import { MatchService } from '@/services/matchService';
+
+type FilterOption = 'all' | 'active' | 'new';
+type SortOption = 'name' | 'rank' | 'joined';
 
 interface ClubMembersListProps {
   members: ClubMemberWithRating[];
@@ -27,6 +31,123 @@ export const ClubMembersList: React.FC<ClubMembersListProps> = ({
   onMemberPress,
   currentUserId,
 }) => {
+  const [filter, setFilter] = useState<FilterOption>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('rank');
+
+  // Filter and sort members
+  const filteredAndSortedMembers = useMemo(() => {
+    let filtered = [...members];
+
+    // Apply filter
+    switch (filter) {
+      case 'active':
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        filtered = filtered.filter(member =>
+          member.last_match_at && new Date(member.last_match_at) > oneMonthAgo
+        );
+        break;
+      case 'new':
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        filtered = filtered.filter(member =>
+          member.joined_at && new Date(member.joined_at) > thirtyDaysAgo
+        );
+        break;
+      case 'all':
+      default:
+        // No filtering needed
+        break;
+    }
+
+    // Apply sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          const aName = a.nickname || a.email || '';
+          const bName = b.nickname || b.email || '';
+          return aName.localeCompare(bName);
+        case 'rank':
+          // Higher ELO rating = better rank (lower index)
+          return (b.elo_rating || 1200) - (a.elo_rating || 1200);
+        case 'joined':
+          // Most recent joined first
+          const aDate = new Date(a.joined_at || 0);
+          const bDate = new Date(b.joined_at || 0);
+          return bDate.getTime() - aDate.getTime();
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [members, filter, sortBy]);
+
+  const renderFilterPill = (option: FilterOption, label: string) => (
+    <TouchableOpacity
+      key={option}
+      style={[
+        styles.pill,
+        filter === option && styles.pillSelected
+      ]}
+      onPress={() => setFilter(option)}
+    >
+      <Text style={[
+        styles.pillText,
+        filter === option && styles.pillTextSelected
+      ]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const renderSortPill = (option: SortOption, label: string) => (
+    <TouchableOpacity
+      key={option}
+      style={[
+        styles.pill,
+        sortBy === option && styles.pillSelected
+      ]}
+      onPress={() => setSortBy(option)}
+    >
+      <Text style={[
+        styles.pillText,
+        sortBy === option && styles.pillTextSelected
+      ]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const renderFiltersHeader = () => (
+    <View style={styles.filtersContainer}>
+      <View style={styles.filterSection}>
+        <Text style={styles.sectionLabel}>FILTER</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.pillsContainer}
+        >
+          {renderFilterPill('all', 'All')}
+          {renderFilterPill('active', 'Active')}
+          {renderFilterPill('new', 'New')}
+        </ScrollView>
+      </View>
+
+      <View style={styles.filterSection}>
+        <Text style={styles.sectionLabel}>SORT BY</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.pillsContainer}
+        >
+          {renderSortPill('name', 'Name')}
+          {renderSortPill('rank', 'Rank')}
+          {renderSortPill('joined', 'Joined')}
+        </ScrollView>
+      </View>
+    </View>
+  );
   const renderMemberCard = ({ item, index }: { item: ClubMemberWithRating; index: number }) => {
     const isCurrentUser = item.user_id === currentUserId;
     const position = index + 1;
@@ -117,16 +238,20 @@ export const ClubMembersList: React.FC<ClubMembersListProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Leaderboard</Text>
-        <Text style={styles.headerSubtitle}>{members.length} members</Text>
+        <Text style={styles.headerSubtitle}>
+          {filteredAndSortedMembers.length} of {members.length} members
+        </Text>
       </View>
 
+      {renderFiltersHeader()}
+
       <FlatList
-        data={members}
+        data={filteredAndSortedMembers}
         renderItem={renderMemberCard}
         keyExtractor={(item) => item.user_id}
         contentContainerStyle={[
           styles.listContainer,
-          members.length === 0 && styles.emptyListContainer,
+          filteredAndSortedMembers.length === 0 && styles.emptyListContainer,
         ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -341,5 +466,48 @@ const styles = {
     color: '#666',
     marginTop: 16,
     textAlign: 'center' as const,
+  },
+  // Filter and sort styles
+  filtersContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+  },
+  filterSection: {
+    marginBottom: 16,
+  },
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: '600' as const,
+    color: '#666',
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  pillsContainer: {
+    flexDirection: 'row' as const,
+  },
+  pill: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginRight: 8,
+  },
+  pillSelected: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  pillText: {
+    fontSize: 14,
+    fontWeight: '500' as const,
+    color: '#333',
+  },
+  pillTextSelected: {
+    color: '#fff',
+    fontWeight: '600' as const,
   },
 };
