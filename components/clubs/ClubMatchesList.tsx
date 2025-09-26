@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
   Alert,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { supabase } from '@/lib/supabase';
+import { MatchFilter, MatchFilters } from './MatchFilter';
 
 interface MatchSet {
   set_number: number;
@@ -66,12 +66,15 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [claiming, setClaiming] = useState<number | null>(null); // matchId being claimed
+  const [filters, setFilters] = useState<MatchFilters>({
+    matchType: 'all',
+    involvement: 'all_matches',
+  });
 
   useEffect(() => {
     loadMatches();
     getCurrentUser();
-  }, [clubId]); // loadMatches is recreated on each render, but we only want to run when clubId changes
+  }, [clubId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -195,61 +198,6 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
     }
   };
 
-  const handleClaimMatchSpot = async (
-    matchId: number,
-    teamNumber: number,
-    playerNumber: number,
-    guestName: string
-  ) => {
-    Alert.alert(
-      'Claim Match Spot',
-      `Claim &quot;${guestName}&quot; as yourself for this match only?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Claim',
-          onPress: () => claimMatchSpot(matchId, teamNumber, playerNumber, guestName),
-        },
-      ]
-    );
-  };
-
-  const claimMatchSpot = async (
-    matchId: number,
-    teamNumber: number,
-    playerNumber: number,
-    guestName: string
-  ) => {
-    try {
-      setClaiming(matchId);
-
-      const { error } = await supabase.rpc('claim_guest_match_spot', {
-        p_match_id: matchId,
-        p_team_number: teamNumber,
-        p_player_number: playerNumber,
-      });
-
-      if (error) throw error;
-
-      Alert.alert(
-        'Success!',
-        `You have successfully claimed the &quot;${guestName}&quot; spot in this match.`,
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              loadMatches(); // Refresh matches
-              onRefresh?.(); // Refresh parent if needed
-            },
-          },
-        ]
-      );
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to claim match spot');
-    } finally {
-      setClaiming(null);
-    }
-  };
 
   const getPlayerInfo = (
     userObj: { email: string; nickname: string | null } | null,
@@ -271,18 +219,33 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
     return { name: 'Unknown', isGuest: false, userId: null };
   };
 
-  const canClaimSpot = (match: MatchRecord, isGuest: boolean): boolean => {
-    if (!currentUserId || !isGuest) return false;
 
-    // User can't claim if they're already part of the match
-    const isUserInMatch =
+  const isUserInvolvedInMatch = (match: MatchRecord): boolean => {
+    if (!currentUserId) return false;
+
+    return (
       match.team1_player1_user_id === currentUserId ||
       match.team1_player2_user_id === currentUserId ||
       match.team2_player1_user_id === currentUserId ||
-      match.team2_player2_user_id === currentUserId;
-
-    return !isUserInMatch;
+      match.team2_player2_user_id === currentUserId
+    );
   };
+
+  const filteredMatches = useMemo(() => {
+    let filtered = matches;
+
+    // Filter by match type
+    if (filters.matchType !== 'all') {
+      filtered = filtered.filter(match => match.match_type === filters.matchType);
+    }
+
+    // Filter by involvement
+    if (filters.involvement === 'my_matches') {
+      filtered = filtered.filter(match => isUserInvolvedInMatch(match));
+    }
+
+    return filtered;
+  }, [matches, filters, currentUserId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -293,39 +256,6 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
     });
   };
 
-  const renderPlayer = (
-    playerInfo: PlayerInfo,
-    match: MatchRecord,
-    teamNumber: number,
-    playerNumber: number
-  ) => (
-    <View key={`${teamNumber}-${playerNumber}`} style={styles.playerRow}>
-      <Text style={styles.playerName}>{playerInfo.name}</Text>
-      {playerInfo.isGuest && (
-        <View style={styles.guestBadge}>
-          <Text style={styles.guestBadgeText}>Guest</Text>
-        </View>
-      )}
-      {canClaimSpot(match, playerInfo.isGuest) && (
-        <TouchableOpacity
-          style={[
-            styles.claimButton,
-            claiming === match.id && styles.claimButtonDisabled,
-          ]}
-          onPress={() =>
-            handleClaimMatchSpot(match.id, teamNumber, playerNumber, playerInfo.name)
-          }
-          disabled={claiming === match.id}
-        >
-          {claiming === match.id ? (
-            <ActivityIndicator color="#fff" size="small" />
-          ) : (
-            <Text style={styles.claimButtonText}>Claim</Text>
-          )}
-        </TouchableOpacity>
-      )}
-    </View>
-  );
 
   const renderMatch = (match: MatchRecord) => {
     const team1Player1Info = getPlayerInfo(match.team1_player1_user, match.team1_player1_guest_name);
@@ -450,28 +380,40 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={loading} onRefresh={loadMatches} />
-      }
-    >
-      {matches.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No matches recorded yet</Text>
-          <Text style={styles.emptySubtext}>
-            Record your first match to see it here
-          </Text>
-        </View>
-      ) : (
-        <View style={styles.matchesList}>
-          <Text style={styles.sectionTitle}>
-            Recent Matches ({matches.length})
-          </Text>
-          {matches.map(renderMatch)}
-        </View>
-      )}
-    </ScrollView>
+    <View style={styles.container}>
+      {/* Filter Component */}
+      <MatchFilter filters={filters} onFiltersChange={setFilters} />
+
+      <ScrollView
+        style={styles.scrollContainer}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={loadMatches} />
+        }
+      >
+        {matches.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No matches recorded yet</Text>
+            <Text style={styles.emptySubtext}>
+              Record your first match to see it here
+            </Text>
+          </View>
+        ) : filteredMatches.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No matches found</Text>
+            <Text style={styles.emptySubtext}>
+              Try adjusting your filters to see more matches
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.matchesList}>
+            <Text style={styles.sectionTitle}>
+              {filters.matchType === 'all' ? 'Recent Matches' : `${filters.matchType.charAt(0).toUpperCase() + filters.matchType.slice(1)} Matches`} ({filteredMatches.length})
+            </Text>
+            {filteredMatches.map(renderMatch)}
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
@@ -479,6 +421,9 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
+  },
+  scrollContainer: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,
