@@ -282,8 +282,14 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    console.log('🎾 handleSubmit called');
 
+    if (!validateForm()) {
+      console.log('🎾 Form validation failed');
+      return;
+    }
+
+    console.log('🎾 Form validated, setting loading to true');
     setLoading(true);
 
     try {
@@ -311,31 +317,51 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
       const team1SetsWon = matchResult.team1_sets_won;
       const team2SetsWon = matchResult.team2_sets_won;
 
-      // Record the match
-      const matchType = getMatchType();
-      const { error: matchError } = await supabase
-        .from('match_records')
-        .insert({
-          club_id: clubId,
-          match_type: matchType,
-          team1_player1_user_id: team1Player1Data.userId,
-          team1_player1_guest_name: team1Player1Data.guestName,
-          team1_player2_user_id: team1Player2Data.userId,
-          team1_player2_guest_name: team1Player2Data.guestName,
-          team2_player1_user_id: team2Player1Data.userId,
-          team2_player1_guest_name: team2Player1Data.guestName,
-          team2_player2_user_id: team2Player2Data.userId,
-          team2_player2_guest_name: team2Player2Data.guestName,
-          winner: winner,
-          game_scores: {
-            sets: sets
-          },
-          match_date: new Date().toISOString(),
-          recorded_by: user.id,
-          notes: notes.trim() || null,
-        });
+      // Prepare game scores with set numbers for database function
+      const gameScores = {
+        sets: sets.map((set, index) => ({
+          set_number: index + 1,
+          team1_games: set.team1_games,
+          team2_games: set.team2_games,
+          team1_tiebreak_points: set.tie_breaker?.team1_points || null,
+          team2_tiebreak_points: set.tie_breaker?.team2_points || null
+        }))
+      };
 
-      if (matchError) throw matchError;
+      // Record the match using the new ELO function
+      const matchType = getMatchType();
+
+      console.log('🎾 Recording match with ELO system:', {
+        clubId,
+        matchType,
+        team1Player1Data,
+        team2Player1Data,
+        winner,
+        gameScores
+      });
+
+      const { data: result, error: matchError } = await supabase.rpc('record_match_with_elo', {
+        p_club_id: clubId,
+        p_match_type: matchType,
+        p_team1_player1_user_id: team1Player1Data.userId,
+        p_team1_player1_guest_name: team1Player1Data.guestName,
+        p_team1_player2_user_id: team1Player2Data.userId,
+        p_team1_player2_guest_name: team1Player2Data.guestName,
+        p_team2_player1_user_id: team2Player1Data.userId,
+        p_team2_player1_guest_name: team2Player1Data.guestName,
+        p_team2_player2_user_id: team2Player2Data.userId,
+        p_team2_player2_guest_name: team2Player2Data.guestName,
+        p_winner: winner,
+        p_game_scores: gameScores,
+        p_notes: notes.trim() || null,
+      });
+
+      console.log('🎾 Match recording result:', { result, matchError });
+
+      if (matchError) {
+        console.error('🎾 Match recording error:', matchError);
+        throw matchError;
+      }
 
       const matchResultMessage = winner === null
         ? `Match tied ${team1SetsWon}-${team2SetsWon}!`
@@ -503,7 +529,10 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
         <View style={styles.footer}>
           <TouchableOpacity
             style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-            onPress={handleSubmit}
+            onPress={() => {
+              console.log('🎾 Record Match button pressed');
+              handleSubmit();
+            }}
             disabled={loading}
           >
             {loading ? (

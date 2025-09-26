@@ -1,0 +1,180 @@
+{
+  "title": "Frequently Asked Questions",
+  "description": "Find answers to common questions about Play Serve - your tennis community app",
+  "categories": [
+    {
+      "name": "Getting Started",
+      "questions": [
+        {
+          "question": "How do I join a tennis club?",
+          "answer": "Browse available clubs in the Clubs tab, tap on a club to view details, then tap 'Join This Club' to become a member. You'll need to be signed in to join clubs."
+        },
+        {
+          "question": "Do I need to pay to use Play Serve?",
+          "answer": "Play Serve is free to use! There are no subscription fees or hidden charges."
+        },
+        {
+          "question": "Can I join multiple clubs?",
+          "answer": "Yes! You can join as many clubs as you'd like. This is great if you play at different locations or want to connect with various tennis communities."
+        }
+      ]
+    },
+    {
+      "name": "Finding and Playing Matches",
+      "questions": [
+        {
+          "question": "How do I find someone to play with?",
+          "answer": "There are several ways:\n• Check 'Open Invites' in your club to see who's looking for matches\n• Use 'Schedule a Match' to create your own invite\n• View club rankings to find players at your skill level\n• Connect with players after recording matches together"
+        },
+        {
+          "question": "What's the difference between 'Record Match' and 'Schedule a Match'?",
+          "answer": "• 'Record Match': For logging a match you've already played\n• 'Schedule a Match': For posting an open invite to find players for future matches"
+        },
+        {
+          "question": "How do open invites work?",
+          "answer": "When you schedule a match, it creates an open invite visible to all club members. Other players can accept your invite, and you'll be notified when someone wants to play. Invites expire after 7 days."
+        },
+        {
+          "question": "Can I play singles and doubles?",
+          "answer": "Yes! Play Serve supports both singles and doubles matches. When recording or scheduling a match, you can specify the format you want to play."
+        },
+        {
+          "question": "How do I find members in my club?",
+          "answer": "Use the Members tab in any club to browse all club members. You can sort and filter members to find ideal playing partners based on your preferences."
+        },
+        {
+          "question": "What are the sorting options in the Members tab?",
+          "answer": "You can sort club members by:\n• **Name**: Alphabetical order (A-Z)\n• **Wins**: Most wins first (great for finding competitive players)\n• **Matches**: Most active players first (members who play frequently)\n• **Recent**: Recently joined members first (newest members)"
+        },
+        {
+          "question": "What are the filter options in the Members tab?",
+          "answer": "You can filter club members by activity level:\n• **All**: Shows every club member\n• **Active**: Shows members with 3+ matches played (experienced, regular players)\n• **New**: Shows members who joined in the last 30 days (great for welcoming newcomers)\n\nActive members have an 'ACTIVE' badge, and new members have a 'NEW' badge for easy identification."
+        },
+        {
+          "question": "What do the member statistics show?",
+          "answer": "Each member's card displays:\n• **Total matches played** in this club\n• **Total wins** in this club\n• **Win rate percentage** calculated from their match history\n• **Color-coded progress bar**: Green (60%+ win rate), Orange (40-59%), Red (<40%)\n• **Join date** when they became a club member\n\nThis helps you find players at your skill level or playing style preference."
+        },
+        {
+          "question": "How do I filter matches in the Matches tab?",
+          "answer": "The Matches tab provides simple filtering options:\n• **Type**: Filter by match format (All, Singles, or Doubles)\n• **Date**: Filter by time period (All Time, Last Week, or Last Month)\n\nThese filters help you quickly find specific matches or review recent club activity."
+        },
+        {
+          "question": "What happens after I join a Looking to Play match?",
+          "answer": "Once you join a match invitation:\n• **Contact sharing**: Your phone number is shared with other participants (and theirs with you)\n• **Private coordination**: Coordinate match details privately via phone/text outside the app\n• **Upcoming matches**: The match appears in your upcoming matches list\n• **Match day**: Play your match at the agreed time and location\n• **Post-match**: Record results via the notification that appears in your club's overview tab"
+        },
+        {
+          "question": "How do I coordinate with my tennis partners?",
+          "answer": "Coordination happens privately outside the app:\n• **Contact exchange**: Phone numbers are automatically shared when you join a match\n• **Direct communication**: Use phone calls or text messages to coordinate\n• **Discuss details**: Arrange specific court, time confirmation, and any other logistics\n• **Stay flexible**: Players handle schedule changes and communication directly\n\nPlay Serve focuses on connecting you - the actual coordination is up to you and your playing partners."
+        },
+        {
+          "question": "Can I cancel a confirmed match?",
+          "answer": "Match cancellations are handled privately between players:\n• **Contact directly**: Use the shared phone numbers to communicate with your partners\n• **Be courteous**: Give as much notice as possible if you need to cancel\n• **Stay responsible**: Frequent cancellations may affect your reputation in the club\n• **No app management**: Play Serve doesn't manage cancellations - handle them directly via phone/text\n\nRemember, other players are counting on you, so communicate any changes promptly."
+        },
+        {
+          "question": "Who can see my contact information?",
+          "answer": "Your contact information is shared selectively:\n• **Match participants only**: Only players confirmed in the same match can see your phone number\n• **Automatic sharing**: Contact info is shared when you join a match invitation\n• **Privacy protection**: Other club members cannot see your contact details\n• **Match-specific**: Contact sharing is limited to that specific match only\n\nThis ensures privacy while enabling necessary coordination for confirmed matches."
+        }
+      ]
+    },
+    {
+      "name": "Rankings and Scoring",
+      "questions": [
+        {
+          "question": "How do rankings work?",
+          "answer": "Play Serve uses an advanced ELO rating system that considers both WHO you beat and HOW you beat them:\n\n**Starting Rating**: Everyone begins at 1200 points\n\n**Opponent Strength Matters**:\n• **Beat a stronger player**: Gain more points (up to +40)\n• **Beat a similar player**: Gain moderate points (+20)\n• **Beat a weaker player**: Gain fewer points (+5 minimum)\n\n**Match Scores Matter Too**:\n• **Dominant win (6-0, 6-1)**: Get 150% of normal points\n• **Strong win (6-2, 6-3)**: Get 125% of normal points\n• **Solid win (6-4, 6-4)**: Get 110% of normal points\n• **Close win (7-6, 7-6)**: Get only 75% of normal points\n\n**Experience Level**: New players (fewer than 10 matches) see bigger rating changes as the system learns their skill level. Established players have more stable ratings.\n\n**Guest Players**: When playing against guest players, your rating updates normally (guests are treated as having a 1200 rating), but guest ratings aren't stored.\n\n**Example**: Beat a stronger player 6-0, 6-1? You might gain +52 points! Win the same match 7-6, 7-6? You'd only gain +26 points.\n\nThis rewards not just winning, but winning convincingly!"
+        },
+        {
+          "question": "Why does beating stronger players give more points?",
+          "answer": "The ELO system rewards competitive challenges:\n• It encourages players to challenge those above their level\n• Prevents 'farming' easy wins against weaker players\n• Creates accurate skill-based rankings\n• Makes upsets exciting and rewarding\n\nThe bigger the rating gap, the more points at stake!"
+        },
+        {
+          "question": "What happens to my ranking if I don't play for a while?",
+          "answer": "Your ELO rating stays the same when inactive - you don't lose points for not playing. However:\n• Active players may pass you in the rankings\n• Your first few games back use a higher 'K-factor' for bigger adjustments\n• This helps your rating quickly adjust if your skill has changed"
+        },
+        {
+          "question": "Are singles and doubles ranked separately?",
+          "answer": "Currently, both singles and doubles affect your overall ELO rating:\n• Singles matches have full impact on your rating\n• Doubles matches have 50% impact (since wins are shared)\n• This gives you one unified club ranking across all play"
+        },
+        {
+          "question": "What do the rating tiers mean?",
+          "answer": "Players are grouped into skill tiers based on ELO rating:\n\n• **Elite** (1600+): Top competitive players 🏆\n• **Advanced** (1400-1599): Strong club players 🥈\n• **Intermediate** (1200-1399): Average club players 🥉\n• **Beginner** (1000-1199): Developing players 🌱\n• **New Player** (<1000): Just starting out 🎾\n\nNew players with fewer than 10 matches see larger rating changes as the system learns their skill level."
+        },
+        {
+          "question": "What happens if I join a club after matches have already been played?",
+          "answer": "ELO ratings are **not** retroactively calculated when you join a club:\n\n• **Only new matches count**: Your rating only changes from matches recorded after you join\n• **Fresh start**: You begin with the standard 1200 rating regardless of past matches\n• **No backdating**: Even if other members recorded matches with you before you joined, these won't affect your rating\n• **Time-based system**: ELO reflects your performance from the moment you start tracking, not historical results\n\nThis prevents gaming the system and ensures fair, consistent ratings for all players."
+        }
+      ]
+    },
+    {
+      "name": "Community Guidelines",
+      "questions": [
+        {
+          "question": "What are the community standards?",
+          "answer": "• Be respectful to all players\n• Show up for scheduled matches\n• Record scores honestly\n• Maintain good sportsmanship\n• Keep club facilities clean\n• Follow individual club rules"
+        },
+        {
+          "question": "What if someone doesn't show up for a scheduled match?",
+          "answer": "If a player repeatedly no-shows, report this to club administrators. Clubs may have their own policies for handling no-shows."
+        },
+        {
+          "question": "Can I dispute a match result?",
+          "answer": "If there's a disagreement about scores, try to resolve it with the other player first. For persistent issues, contact your club administrator for assistance."
+        }
+      ]
+    },
+    {
+      "name": "Privacy and Safety",
+      "questions": [
+        {
+          "question": "Who can see my profile information?",
+          "answer": "• Your name and stats are visible to members of clubs you've joined\n• Your email remains private\n• Match history is visible to club members\n• You control what information you add to your profile"
+        },
+        {
+          "question": "Is my location tracked?",
+          "answer": "Location is only used when you explicitly allow it to find nearby clubs. We don't track or store your location continuously."
+        },
+        {
+          "question": "How do I report inappropriate behavior?",
+          "answer": "After playing a match, you can report player issues directly from the match recording screen:\n• Tap 'Record Results' after your match\n• Look for 'Report Player Issue' section (collapsed by default)\n• Select the player(s) and describe what happened\n• Reports are tied to specific matches to prevent abuse\n\nFor urgent safety concerns, email support@caritos.com immediately."
+        },
+        {
+          "question": "What happens when someone is reported?",
+          "answer": "Reports are reviewed by our safety team:\n• **2 reports**: Player receives a warning notification\n• **3 reports**: 7-day temporary removal from the club\n• **4+ reports**: Permanent ban from the club\n\nAll reports are investigated to ensure fairness. False reports may result in action against the reporter."
+        },
+        {
+          "question": "What types of behavior should I report?",
+          "answer": "Report serious violations only:\n• **No Show**: Player didn't appear for scheduled match\n• **Poor Behavior**: Inappropriate conduct during match\n• **Unsportsmanlike Conduct**: Cheating, verbal abuse, or unfair play\n• **Other Issues**: Safety concerns or community guideline violations\n\nDon't report minor disagreements or skill mismatches."
+        },
+        {
+          "question": "Can I report multiple players from one match?",
+          "answer": "• **Singles matches**: You can report one player (radio button selection)\n• **Doubles matches**: You can report multiple players (checkbox selection)\n• Each player can only be reported once per match\n• This prevents report threshold manipulation"
+        },
+        {
+          "question": "When can I report a player?",
+          "answer": "You can only report players after a match has been played:\n• Reports must be submitted when recording match results\n• Cannot report players before the match occurs\n• Reports are permanently tied to that specific match\n• This ensures all reports have proper context"
+        },
+        {
+          "question": "How is my privacy protected when reporting?",
+          "answer": "• Reports are confidential - reported players don't see who reported them\n• Only safety team members can view report details\n• Your identity is protected throughout the review process\n• Contact information is only shared with match participants"
+        }
+      ]
+    },
+    {
+      "name": "Technical Support",
+      "questions": [
+        {
+          "question": "The app isn't working properly. What should I do?",
+          "answer": "Try these steps:\n1. Force close and restart the app\n2. Check your internet connection\n3. Update to the latest app version\n4. Sign out and sign back in\n\nIf issues persist, email support@caritos.com"
+        },
+        {
+          "question": "How do I delete my account?",
+          "answer": "To delete your account, email support@caritos.com from your registered email address. Note that this will permanently remove all your data, including match history and rankings."
+        },
+        {
+          "question": "Can I use Play Serve on multiple devices?",
+          "answer": "Yes! Sign in with the same account on any device to access your profile, clubs, and match history."
+        }
+      ]
+    }
+  ]
+}
