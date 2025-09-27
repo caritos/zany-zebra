@@ -11,7 +11,6 @@ import {
 import { ClubMemberWithRating } from '@/types/matches';
 import { MatchService } from '@/services/matchService';
 
-type FilterOption = 'all' | 'active' | 'new';
 type SortOption = 'name' | 'rank' | 'joined';
 
 interface ClubMembersListProps {
@@ -31,37 +30,14 @@ export const ClubMembersList: React.FC<ClubMembersListProps> = ({
   onMemberPress,
   currentUserId,
 }) => {
-  const [filter, setFilter] = useState<FilterOption>('all');
   const [sortBy, setSortBy] = useState<SortOption>('rank');
 
-  // Filter and sort members
-  const filteredAndSortedMembers = useMemo(() => {
-    let filtered = [...members];
-
-    // Apply filter
-    switch (filter) {
-      case 'active':
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        filtered = filtered.filter(member =>
-          member.last_match_at && new Date(member.last_match_at) > oneMonthAgo
-        );
-        break;
-      case 'new':
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        filtered = filtered.filter(member =>
-          member.joined_at && new Date(member.joined_at) > thirtyDaysAgo
-        );
-        break;
-      case 'all':
-      default:
-        // No filtering needed
-        break;
-    }
+  // Sort members
+  const sortedMembers = useMemo(() => {
+    const sorted = [...members];
 
     // Apply sort
-    filtered.sort((a, b) => {
+    sorted.sort((a, b) => {
       switch (sortBy) {
         case 'name':
           const aName = a.nickname || a.email || '';
@@ -80,26 +56,8 @@ export const ClubMembersList: React.FC<ClubMembersListProps> = ({
       }
     });
 
-    return filtered;
-  }, [members, filter, sortBy]);
-
-  const renderFilterPill = (option: FilterOption, label: string) => (
-    <TouchableOpacity
-      key={option}
-      style={[
-        styles.pill,
-        filter === option && styles.pillSelected
-      ]}
-      onPress={() => setFilter(option)}
-    >
-      <Text style={[
-        styles.pillText,
-        filter === option && styles.pillTextSelected
-      ]}>
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
+    return sorted;
+  }, [members, sortBy]);
 
   const renderSortPill = (option: SortOption, label: string) => (
     <TouchableOpacity
@@ -119,33 +77,18 @@ export const ClubMembersList: React.FC<ClubMembersListProps> = ({
     </TouchableOpacity>
   );
 
-  const renderFiltersHeader = () => (
-    <View style={styles.filtersContainer}>
-      <View style={styles.filterSection}>
-        <Text style={styles.sectionLabel}>FILTER</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.pillsContainer}
-        >
-          {renderFilterPill('all', 'All')}
-          {renderFilterPill('active', 'Active')}
-          {renderFilterPill('new', 'New')}
-        </ScrollView>
-      </View>
-
-      <View style={styles.filterSection}>
-        <Text style={styles.sectionLabel}>SORT BY</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.pillsContainer}
-        >
-          {renderSortPill('name', 'Name')}
-          {renderSortPill('rank', 'Rank')}
-          {renderSortPill('joined', 'Joined')}
-        </ScrollView>
-      </View>
+  const renderSortHeader = () => (
+    <View style={styles.sortContainer}>
+      <Text style={styles.sectionLabel}>SORT BY</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.pillsContainer}
+      >
+        {renderSortPill('rank', 'Rank')}
+        {renderSortPill('name', 'Name')}
+        {renderSortPill('joined', 'Recently Joined')}
+      </ScrollView>
     </View>
   );
   const renderMemberCard = ({ item, index }: { item: ClubMemberWithRating; index: number }) => {
@@ -236,22 +179,15 @@ export const ClubMembersList: React.FC<ClubMembersListProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Leaderboard</Text>
-        <Text style={styles.headerSubtitle}>
-          {filteredAndSortedMembers.length} of {members.length} members
-        </Text>
-      </View>
-
-      {renderFiltersHeader()}
+      {renderSortHeader()}
 
       <FlatList
-        data={filteredAndSortedMembers}
+        data={sortedMembers}
         renderItem={renderMemberCard}
         keyExtractor={(item) => item.user_id}
         contentContainerStyle={[
           styles.listContainer,
-          filteredAndSortedMembers.length === 0 && styles.emptyListContainer,
+          sortedMembers.length === 0 && styles.emptyListContainer,
         ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -277,22 +213,6 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
-  },
-  header: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold' as const,
-    color: '#1a1a1a',
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
   },
   listContainer: {
     padding: 16,
@@ -467,16 +387,13 @@ const styles = {
     marginTop: 16,
     textAlign: 'center' as const,
   },
-  // Filter and sort styles
-  filtersContainer: {
+  // Sort styles
+  sortContainer: {
     backgroundColor: '#fff',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  filterSection: {
-    marginBottom: 16,
   },
   sectionLabel: {
     fontSize: 12,
