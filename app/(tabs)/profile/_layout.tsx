@@ -1,65 +1,68 @@
-import React from "react";
-import { Tabs } from "expo-router";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import React, { useState } from "react";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { BottomTabNavigation, TabItem } from "@/components/ui/BottomTabNavigation";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import ProfileTab from "./index";
+import StatsTab from "./stats";
+import SettingsTab from "./settings";
+
+type ProfileTabKey = 'index' | 'stats' | 'settings';
+
+const PROFILE_TABS: TabItem[] = [
+  {
+    key: 'index',
+    title: 'Profile',
+    icon: 'person.circle'
+  },
+  {
+    key: 'stats',
+    title: 'Stats',
+    icon: 'chart.bar'
+  },
+  {
+    key: 'settings',
+    title: 'Settings',
+    icon: 'gearshape'
+  }
+];
 
 export default function ProfileTabLayout() {
-  const tintColor = useThemeColor({}, "tint");
-  const tabBarActiveTintColor = useThemeColor({}, "tabIconSelected");
-  const tabBarInactiveTintColor = useThemeColor({}, "tabIconDefault");
+  const [activeTab, setActiveTab] = useState<ProfileTabKey>('index');
+  const backgroundColor = useThemeColor({}, "background");
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'index':
+        return <ProfileTab />;
+      case 'stats':
+        return <StatsTab />;
+      case 'settings':
+        return <SettingsTab />;
+      default:
+        return <ProfileTab />;
+    }
+  };
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor,
-        tabBarInactiveTintColor,
-        headerShown: false,
-        tabBarPosition: "top",
-        tabBarStyle: {
-          backgroundColor: useThemeColor({}, "background"),
-          borderBottomWidth: 1,
-          borderBottomColor: useThemeColor({}, "icon") + "20",
-          paddingTop: 50,
-          paddingBottom: 10,
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          tabBarIcon: ({ color }) => (
-            <IconSymbol name="person.circle" size={24} color={color} />
-          ),
-        }}
+    <SafeAreaView style={[styles.container, { backgroundColor }]} edges={['top', 'left', 'right']}>
+      <BottomTabNavigation
+        tabs={PROFILE_TABS}
+        activeTab={activeTab}
+        onTabChange={(tabKey) => setActiveTab(tabKey as ProfileTabKey)}
       />
-      <Tabs.Screen
-        name="stats"
-        options={{
-          tabBarIcon: ({ color }) => (
-            <IconSymbol name="chart.bar" size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          tabBarIcon: ({ color }) => (
-            <IconSymbol name="gearshape" size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="faq"
-        options={{
-          href: null, // This hides it from tabs
-        }}
-      />
-      <Tabs.Screen
-        name="privacy-policy"
-        options={{
-          href: null, // This hides it from tabs
-        }}
-      />
-    </Tabs>
+      <View style={styles.content}>
+        {renderContent()}
+      </View>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+  },
+});

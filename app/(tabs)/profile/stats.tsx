@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { StyleSheet, ScrollView, View, ActivityIndicator } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -32,16 +32,13 @@ export default function StatsTab() {
   const borderColor = useThemeColor({}, "icon");
   const tintColor = useThemeColor({}, "tint");
 
-  const { user } = useAuth();
+  const { session } = useAuth();
+  const user = session?.user;
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchUserStats();
-  }, [user]);
-
-  const fetchUserStats = async () => {
+  const fetchUserStats = useCallback(async () => {
     console.log('🔍 fetchUserStats called, user:', user);
 
     if (!user) {
@@ -98,7 +95,11 @@ export default function StatsTab() {
       console.log('🏁 Setting loading to false');
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchUserStats();
+  }, [fetchUserStats]);
 
   const topStats = [
     {

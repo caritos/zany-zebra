@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { BottomTabNavigation, TabItem } from '@/components/ui/BottomTabNavigation';
 import { Club } from '@/types/clubs';
 import { ClubMembersList } from './ClubMembersList';
 import { ClubMatchesList } from './ClubMatchesList';
@@ -21,6 +22,24 @@ interface ClubPageProps {
   visible: boolean;
   onClose: () => void;
 }
+
+const CLUB_TABS: TabItem[] = [
+  {
+    key: 'matches',
+    title: 'Matches',
+    icon: 'figure.tennis'
+  },
+  {
+    key: 'members',
+    title: 'Members',
+    icon: 'person.2.fill'
+  },
+  {
+    key: 'about',
+    title: 'About',
+    icon: 'info.circle'
+  }
+];
 
 export const ClubPage: React.FC<ClubPageProps> = ({ club, visible, onClose }) => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -82,32 +101,12 @@ export const ClubPage: React.FC<ClubPageProps> = ({ club, visible, onClose }) =>
         </View>
 
       {/* Tab Navigation */}
-      <View style={styles.tabBar}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'matches' && styles.activeTab]}
-          onPress={() => setActiveTab('matches')}
-        >
-          <Text style={[styles.tabText, activeTab === 'matches' && styles.activeTabText]}>
-            Matches
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'members' && styles.activeTab]}
-          onPress={() => setActiveTab('members')}
-        >
-          <Text style={[styles.tabText, activeTab === 'members' && styles.activeTabText]}>
-            Members
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'about' && styles.activeTab]}
-          onPress={() => setActiveTab('about')}
-        >
-          <Text style={[styles.tabText, activeTab === 'about' && styles.activeTabText]}>
-            About
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <BottomTabNavigation
+        tabs={CLUB_TABS}
+        activeTab={activeTab}
+        onTabChange={(tabKey) => setActiveTab(tabKey as 'about' | 'members' | 'matches')}
+        backgroundColor="#fff"
+      />
 
       {/* Action Bar - Only show for Matches tab */}
       {activeTab === 'matches' && (
@@ -178,7 +177,7 @@ export const ClubPage: React.FC<ClubPageProps> = ({ club, visible, onClose }) =>
           error={error}
           onRefresh={refetch}
           onMemberPress={handleMemberPress}
-          currentUserId={currentUserId}
+          currentUserId={currentUserId || undefined}
         />
       ) : (
         <ClubMatchesList
@@ -274,30 +273,6 @@ const styles = {
     fontSize: 15,
     color: '#555',
     lineHeight: 22,
-  },
-  tabBar: {
-    flexDirection: 'row' as const,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: 'center' as const,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: '#007AFF',
-  },
-  tabText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  activeTabText: {
-    color: '#007AFF',
-    fontWeight: '600' as const,
   },
   actionBar: {
     backgroundColor: '#fff',
