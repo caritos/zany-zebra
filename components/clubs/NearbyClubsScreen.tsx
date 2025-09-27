@@ -9,12 +9,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
-import { useNearbyClubs } from '@/hooks/useClubs';
+import { useNearbyClubs, useGeocodingZip } from '@/hooks/useClubs';
 import { useMyClubs, useClubMembership } from '@/hooks/useClubMembership';
-import { ClubService } from '@/services/clubService';
+import { useProfile } from '@/hooks/useProfile';
+import { ClubService, GeocodingService } from '@/services/clubService';
+import { supabase } from '@/lib/supabase';
 import { ClubList } from './ClubList';
 import { CreateClubForm } from './CreateClubForm';
-import { UserLocation, ClubWithDistance, ClubSearchResult } from '@/types/clubs';
+import { UserLocation, ClubWithDistance, ClubSearchResult, Club } from '@/types/clubs';
 import { MyClub } from '@/types/clubMembership';
 
 type ClubItem = ClubWithDistance | ClubSearchResult | MyClub;
@@ -29,53 +31,164 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [locationSource, setLocationSource] = useState<'gps' | 'zip' | 'phone' | 'default'>('gps');
+
+  // Get user profile for fallback location data
+  const { profile } = useProfile();
+  const { geocodeZip } = useGeocodingZip();
 
   // Get user's clubs
   const { clubs: myClubs, loading: myClubsLoading, refetch: refetchMyClubs } = useMyClubs();
 
-  // Get nearby clubs (limited to 5 for discovery)
+  // Get nearby clubs (no limit for discovery)
   const { clubs: nearbyClubs, loading: nearbyLoading, error, refetch: refetchNearby } = useNearbyClubs(userLocation, {
-    maxDistance: 25,
+    maxDistance: 50, // Increased to 50km to show more clubs
     enabled: !!userLocation,
   });
 
   // Create set of user's club IDs for membership checking
   const userMembershipIds = new Set(myClubs.map(club => club.club_id));
 
-  // Filter nearby clubs to only show ones user is NOT a member of, limit to 5
+  // Filter nearby clubs to only show ones user is NOT a member of, limit to 5 closest
   const discoverableClubs = nearbyClubs
     .filter(club => !userMembershipIds.has(club.club_id))
-    .slice(0, 5);
+    .slice(0, 5); // Limit to 5 closest clubs
 
-  // Get user's current location
+  // Debug logging
+  console.log('🐛 Debug Info:', {
+    userLocation,
+    locationSource,
+    nearbyClubsCount: nearbyClubs.length,
+    myClubsCount: myClubs.length,
+    userMembershipIds: Array.from(userMembershipIds),
+    discoverableClubsCount: discoverableClubs.length,
+    allNearbyClubs: nearbyClubs.map(c => ({ id: c.club_id, name: c.club_name, isMember: userMembershipIds.has(c.club_id) }))
+  });
+
+  // Get user's current location with fallback logic
   useEffect(() => {
-    getCurrentLocation();
-  }, []);
+    if (profile !== undefined) { // Only run after profile is loaded
+      getCurrentLocation();
+    }
+  }, [profile, geocodeZip]);
+
+  const getAreaCodeFromPhone = (phoneNumber: string): string | null => {
+    // Extract area code from US phone number (first 3 digits after country code)
+    const cleaned = phoneNumber.replace(/\D/g, '');
+    if (cleaned.length >= 10) {
+      return cleaned.slice(-10, -7); // Get area code
+    }
+    return null;
+  };
+
+  const getZipFromAreaCode = (areaCode: string): string => {
+    // Map common area codes to representative zip codes
+    // This is a simplified mapping - in production you'd want a more comprehensive mapping
+    const areaCodeToZip: { [key: string]: string } = {
+      '212': '10001', // Manhattan, NY
+      '310': '90210', // Beverly Hills, CA
+      '415': '94102', // San Francisco, CA
+      '305': '33101', // Miami, FL
+      '516': '11790', // Long Island, NY (Stony Brook area)
+      '631': '11790', // Long Island, NY (Suffolk County)
+      // Add more mappings as needed
+    };
+    return areaCodeToZip[areaCode] || '11790'; // Default to 11790
+  };
 
   const getCurrentLocation = async () => {
     try {
-      // Request location permissions
+      // Try GPS first
       const { status } = await Location.requestForegroundPermissionsAsync();
 
-      if (status !== 'granted') {
-        setLocationError('Location permission is required to find nearby clubs');
-        return;
+      if (status === 'granted') {
+        try {
+          const location = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+
+          console.log('✅ Using GPS location:', location.coords);
+          setUserLocation({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            accuracy: location.coords.accuracy || undefined,
+          });
+          setLocationSource('gps');
+          setLocationError(null);
+          return;
+        } catch (gpsError) {
+          console.log('GPS failed, trying fallback locations...');
+        }
       }
 
-      // Get current position
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
+      // Fallback 1: Try user's zip code
+      if (profile?.zip_code) {
+        console.log('Using user zip code:', profile.zip_code);
+        try {
+          const location = await geocodeZip(profile.zip_code);
+          if (location) {
+            setUserLocation(location);
+            setLocationSource('zip');
+            setLocationError(null);
+            return;
+          }
+        } catch (zipError) {
+          console.log('Zip code geocoding failed:', zipError);
+        }
+      }
 
-      setUserLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        accuracy: location.coords.accuracy || undefined,
-      });
-      setLocationError(null);
+      // Fallback 2: Try area code from phone number
+      if (profile?.phone_number) {
+        const areaCode = getAreaCodeFromPhone(profile.phone_number);
+        if (areaCode) {
+          console.log('Using area code:', areaCode);
+          const zipFromAreaCode = getZipFromAreaCode(areaCode);
+          try {
+            const location = await geocodeZip(zipFromAreaCode);
+            if (location) {
+              setUserLocation(location);
+              setLocationSource('phone');
+              setLocationError(null);
+              return;
+            }
+          } catch (phoneError) {
+            console.log('Area code geocoding failed:', phoneError);
+          }
+        }
+      }
+
+      // Fallback 3: Use default zip code 11790
+      console.log('Using default location: 11790');
+      try {
+        const location = await geocodeZip('11790');
+        if (location) {
+          console.log('✅ Default location set:', location);
+          setUserLocation(location);
+          setLocationSource('default');
+          setLocationError(null);
+        } else {
+          console.log('❌ Default location returned null, using hardcoded fallback');
+          // Use hardcoded coordinates for 11790 (Stony Brook, NY)
+          setUserLocation({
+            latitude: 40.9176,
+            longitude: -73.1252,
+          });
+          setLocationSource('default');
+          setLocationError(null);
+        }
+      } catch (defaultError) {
+        console.error('❌ Default location failed, using hardcoded fallback:', defaultError);
+        // Use hardcoded coordinates for 11790 (Stony Brook, NY) as last resort
+        setUserLocation({
+          latitude: 40.9176,
+          longitude: -73.1252,
+        });
+        setLocationSource('default');
+        setLocationError(null);
+      }
     } catch (error) {
       console.error('Error getting location:', error);
-      setLocationError('Unable to get your current location');
+      setLocationError('Unable to determine your location');
     }
   };
 
@@ -116,6 +229,22 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
     refetchNearby();
   };
 
+  // Debug function to test direct database call
+  const testDirectDatabaseCall = async () => {
+    console.log('🧪 Testing direct database call...');
+    try {
+      const { data, error } = await supabase.rpc('get_clubs_near_location', {
+        user_lat: 40.9176, // Hardcoded Stony Brook coordinates
+        user_long: -73.1252,
+        max_distance_km: 50,
+      });
+
+      console.log('🧪 Direct DB call result:', { data, error });
+    } catch (err) {
+      console.error('🧪 Direct DB call failed:', err);
+    }
+  };
+
   const handleRetryLocation = () => {
     setLocationError(null);
     getCurrentLocation();
@@ -141,10 +270,31 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Tennis Clubs</Text>
-        <Text style={styles.subtitle}>
-          Your clubs and nearby communities
-        </Text>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.title}>Tennis Clubs</Text>
+            <Text style={styles.subtitle}>
+              Your clubs and nearby communities
+            </Text>
+          </View>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.refreshButton}
+              onPress={handleRefresh}
+              disabled={loading}
+            >
+              <Text style={styles.refreshButtonText}>
+                {loading ? '↻' : '🔄'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.debugButton}
+              onPress={testDirectDatabaseCall}
+            >
+              <Text style={styles.debugButtonText}>🧪</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
 
       {/* Location Error */}
@@ -187,30 +337,33 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
         </View>
 
         {/* Discover Clubs Section */}
-        {userLocation && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Discover Clubs Near You</Text>
-              {discoverableClubs.length > 0 && (
-                <Text style={styles.sectionSubtitle}>Closest 5 clubs</Text>
-              )}
-            </View>
-
-            <ClubList
-              clubs={discoverableClubs}
-              loading={nearbyLoading}
-              error={error}
-              onRefresh={handleRefresh}
-              onClubPress={onClubPress}
-              showDistance={true}
-              showMembershipActions={true}
-              userMemberships={userMembershipIds}
-              onJoinClub={handleJoinClub}
-              emptyMessage="No nearby clubs found. Create a new club in your area!"
-              scrollEnabled={false}
-            />
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Discover Clubs Near You</Text>
+            {discoverableClubs.length > 0 && (
+              <Text style={styles.sectionSubtitle}>
+                5 closest clubs
+                {locationSource === 'zip' && ' (based on zip code)'}
+                {locationSource === 'phone' && ' (based on area code)'}
+                {locationSource === 'default' && ' (default location)'}
+              </Text>
+            )}
           </View>
-        )}
+
+          <ClubList
+            clubs={discoverableClubs}
+            loading={nearbyLoading}
+            error={error}
+            onRefresh={handleRefresh}
+            onClubPress={onClubPress}
+            showDistance={true}
+            showMembershipActions={true}
+            userMemberships={userMembershipIds}
+            onJoinClub={handleJoinClub}
+            emptyMessage="No nearby clubs found. Create a new club in your area!"
+            scrollEnabled={false}
+          />
+        </View>
 
         {/* Create Club Button */}
         {userLocation && !loading && discoverableClubs.length === 0 && !error && (
@@ -249,6 +402,11 @@ const styles = {
     padding: 20,
     paddingBottom: 16,
   },
+  headerContent: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold' as const,
@@ -258,6 +416,34 @@ const styles = {
   subtitle: {
     fontSize: 16,
     color: '#666',
+  },
+  buttonRow: {
+    flexDirection: 'row' as const,
+    gap: 8,
+  },
+  refreshButton: {
+    padding: 8,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  refreshButtonText: {
+    fontSize: 18,
+  },
+  debugButton: {
+    padding: 8,
+    backgroundColor: '#ffeb3b',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  debugButtonText: {
+    fontSize: 18,
   },
   content: {
     flex: 1,

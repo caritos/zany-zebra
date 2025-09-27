@@ -24,10 +24,12 @@ export class ClubService {
     userLocation: UserLocation,
     maxDistanceKm: number = 25
   ): Promise<ClubWithDistance[]> {
-    const { data, error } = await supabase.rpc('get_clubs_near_location', {
+    // For discovery, get the closest clubs regardless of distance
+    // We'll use a limit of 50 to ensure we have enough for filtering
+    const { data, error } = await supabase.rpc('get_closest_clubs', {
       user_lat: userLocation.latitude,
       user_long: userLocation.longitude,
-      max_distance_km: maxDistanceKm,
+      limit_count: 50,
     });
 
     if (error) {

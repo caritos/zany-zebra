@@ -21,15 +21,6 @@ export default function LoginScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  const checkEmailExists = async (email: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("email")
-      .eq("email", email)
-      .single();
-
-    return !!data && !error;
-  };
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -72,24 +63,23 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
-      // Check if email exists in profiles table
-      const emailExists = await checkEmailExists(email);
+      // First, always try to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      if (emailExists) {
-        // Email exists, try to sign in
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      if (!signInError) {
+        // Sign in successful - navigation will happen automatically via auth state change
+        return;
+      }
 
-        if (error) {
-          Alert.alert("Login Error", error.message);
-        } else {
-          // Navigation will happen automatically via auth state change
-        }
-      } else {
-        // Email doesn't exist, create new account
-        const { error } = await supabase.auth.signUp({
+      // If sign in fails with invalid credentials, try to sign up
+      if (signInError.message.includes("Invalid login credentials") ||
+          signInError.message.includes("User not found")) {
+
+        // Try to create a new account
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -97,23 +87,23 @@ export default function LoginScreen() {
           },
         });
 
-        if (error) {
-          Alert.alert("Sign Up Error", error.message);
-        } else {
-          // Auto sign in after sign up since email confirmation is disabled
-          const { error: signInError } = await supabase.auth.signInWithPassword(
-            {
-              email,
-              password,
-            },
-          );
+        if (signUpError) {
+          Alert.alert("Sign Up Error", signUpError.message);
+        } else if (signUpData.user) {
+          // Auto sign in after successful sign up
+          const { error: autoSignInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
 
-          if (signInError) {
-            Alert.alert("Login Error", signInError.message);
-          } else {
-            // Navigation will happen automatically via auth state change
+          if (autoSignInError) {
+            Alert.alert("Login Error", autoSignInError.message);
           }
+          // Navigation will happen automatically via auth state change
         }
+      } else {
+        // Some other error occurred
+        Alert.alert("Login Error", signInError.message);
       }
     } catch (error: any) {
       Alert.alert("Error", error.message || "An unexpected error occurred");

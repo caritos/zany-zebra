@@ -30,9 +30,22 @@ export const useNearbyClubs = (
     setError(null);
 
     try {
+      console.log('🔍 Fetching nearby clubs...', {
+        location: userLocation,
+        maxDistance,
+        timestamp: new Date().toISOString(),
+      });
+
       const nearbyClubs = await ClubService.getClubsNearLocation(userLocation, maxDistance);
+
+      console.log('📍 Found nearby clubs:', {
+        count: nearbyClubs.length,
+        clubs: nearbyClubs.map(c => ({ id: c.club_id, name: c.club_name, distance: c.distance_km })),
+      });
+
       setClubs(nearbyClubs);
     } catch (err) {
+      console.error('❌ Error fetching nearby clubs:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch nearby clubs');
     } finally {
       setLoading(false);
@@ -193,6 +206,41 @@ export const useClub = (clubId: number | null) => {
     loading,
     error,
     refetch: fetchClub,
+  };
+};
+
+// Hook for getting all clubs
+export const useAllClubs = () => {
+  const [clubs, setClubs] = useState<Club[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [total, setTotal] = useState(0);
+
+  const fetchAllClubs = useCallback(async (page: number = 0, limit: number = 50) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await ClubService.getAllClubs(page, limit);
+      setClubs(result.clubs);
+      setTotal(result.total);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch clubs');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAllClubs();
+  }, [fetchAllClubs]);
+
+  return {
+    clubs,
+    total,
+    loading,
+    error,
+    refetch: fetchAllClubs,
   };
 };
 
