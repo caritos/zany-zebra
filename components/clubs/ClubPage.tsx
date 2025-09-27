@@ -6,6 +6,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Club } from '@/types/clubs';
 import { ClubMembersList } from './ClubMembersList';
 import { ClubMatchesList } from './ClubMatchesList';
@@ -21,7 +22,7 @@ interface ClubPageProps {
 export const ClubPage: React.FC<ClubPageProps> = ({ club, onBack }) => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [showRecordMatch, setShowRecordMatch] = useState(false);
-  const [activeTab, setActiveTab] = useState<'members' | 'matches'>('members');
+  const [activeTab, setActiveTab] = useState<'about' | 'members' | 'matches'>('matches');
 
   const {
     members,
@@ -62,22 +63,21 @@ export const ClubPage: React.FC<ClubPageProps> = ({ club, onBack }) => {
       <View style={styles.header}>
         {onBack && (
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Text style={styles.backButtonText}>← Back</Text>
+            <IconSymbol name="chevron.left" size={24} color="#007AFF" />
           </TouchableOpacity>
         )}
-        <View style={styles.clubInfo}>
-          <Text style={styles.clubName}>{club.name}</Text>
-          <Text style={styles.clubLocation}>
-            {club.city}, {club.state} • {club.zip_code}
-          </Text>
-          {club.description && (
-            <Text style={styles.clubDescription}>{club.description}</Text>
-          )}
-        </View>
       </View>
 
       {/* Tab Navigation */}
       <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'matches' && styles.activeTab]}
+          onPress={() => setActiveTab('matches')}
+        >
+          <Text style={[styles.tabText, activeTab === 'matches' && styles.activeTabText]}>
+            Matches
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'members' && styles.activeTab]}
           onPress={() => setActiveTab('members')}
@@ -87,42 +87,77 @@ export const ClubPage: React.FC<ClubPageProps> = ({ club, onBack }) => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'matches' && styles.activeTab]}
-          onPress={() => setActiveTab('matches')}
+          style={[styles.tab, activeTab === 'about' && styles.activeTab]}
+          onPress={() => setActiveTab('about')}
         >
-          <Text style={[styles.tabText, activeTab === 'matches' && styles.activeTabText]}>
-            Matches
+          <Text style={[styles.tabText, activeTab === 'about' && styles.activeTabText]}>
+            About
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Action Bar */}
-      <View style={styles.actionBar}>
-        <TouchableOpacity
-          style={[
-            styles.recordMatchButton,
-            !canRecordMatch && styles.recordMatchButtonDisabled
-          ]}
-          onPress={() => setShowRecordMatch(true)}
-          disabled={!canRecordMatch}
-        >
-          <Text style={[
-            styles.recordMatchButtonText,
-            !canRecordMatch && styles.recordMatchButtonTextDisabled
-          ]}>
-            🎾 Record Match
-          </Text>
-        </TouchableOpacity>
+      {/* Action Bar - Only show for Matches tab */}
+      {activeTab === 'matches' && (
+        <View style={styles.actionBar}>
+          <TouchableOpacity
+            style={[
+              styles.recordMatchButton,
+              !canRecordMatch && styles.recordMatchButtonDisabled
+            ]}
+            onPress={() => setShowRecordMatch(true)}
+            disabled={!canRecordMatch}
+          >
+            <Text style={[
+              styles.recordMatchButtonText,
+              !canRecordMatch && styles.recordMatchButtonTextDisabled
+            ]}>
+              🎾 Record Match
+            </Text>
+          </TouchableOpacity>
 
-        {!canRecordMatch && (
-          <Text style={styles.disabledHint}>
-            Need to be a club member to record matches
-          </Text>
-        )}
-      </View>
+          {!canRecordMatch && (
+            <Text style={styles.disabledHint}>
+              Need to be a club member to record matches
+            </Text>
+          )}
+        </View>
+      )}
 
       {/* Tab Content */}
-      {activeTab === 'members' ? (
+      {activeTab === 'about' ? (
+        <View style={styles.aboutContainer}>
+          <View style={styles.aboutSection}>
+            <Text style={styles.clubName}>{club.name}</Text>
+            <Text style={styles.clubLocation}>
+              {club.city}, {club.state} • {club.zip_code}
+            </Text>
+            {club.description && (
+              <Text style={styles.clubDescription}>{club.description}</Text>
+            )}
+          </View>
+
+          <View style={styles.aboutSection}>
+            <Text style={styles.aboutLabel}>Active Players</Text>
+            <Text style={styles.aboutValue}>{club.active_players_count || 0}</Text>
+          </View>
+
+          <View style={styles.aboutSection}>
+            <Text style={styles.aboutLabel}>Location</Text>
+            <Text style={styles.aboutValue}>
+              {club.city}, {club.state} {club.zip_code}
+            </Text>
+          </View>
+
+          {club.radius_meters && (
+            <View style={styles.aboutSection}>
+              <Text style={styles.aboutLabel}>Coverage Area</Text>
+              <Text style={styles.aboutValue}>
+                {(club.radius_meters / 1000).toFixed(1)} km radius
+              </Text>
+            </View>
+          )}
+        </View>
+      ) : activeTab === 'members' ? (
         <ClubMembersList
           members={members}
           loading={loading}
@@ -157,17 +192,35 @@ const styles = {
   },
   header: {
     backgroundColor: '#fff',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   backButton: {
-    marginBottom: 12,
+    width: 40,
+    height: 40,
+    justifyContent: 'center' as const,
+    alignItems: 'flex-start' as const,
   },
-  backButtonText: {
-    color: '#007AFF',
+  aboutContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  aboutSection: {
+    marginBottom: 24,
+  },
+  aboutLabel: {
+    fontSize: 14,
+    color: '#999',
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.5,
+    marginBottom: 6,
+    fontWeight: '600' as const,
+  },
+  aboutValue: {
     fontSize: 16,
-    fontWeight: '500' as const,
+    color: '#333',
   },
   clubInfo: {
     marginBottom: 8,
@@ -176,17 +229,17 @@ const styles = {
     fontSize: 28,
     fontWeight: 'bold' as const,
     color: '#1a1a1a',
-    marginBottom: 4,
+    marginBottom: 8,
   },
   clubLocation: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   clubDescription: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#555',
-    lineHeight: 20,
+    lineHeight: 22,
   },
   tabBar: {
     flexDirection: 'row' as const,

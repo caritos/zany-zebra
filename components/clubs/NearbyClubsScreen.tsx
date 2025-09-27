@@ -268,14 +268,6 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#f8f9fa" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Tennis Clubs</Text>
-        <Text style={styles.subtitle}>
-          Your clubs and nearby communities
-        </Text>
-      </View>
-
       {/* Location Error */}
       {locationError && (
         <View style={styles.locationErrorContainer}>
@@ -376,20 +368,6 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
-  },
-  header: {
-    padding: 20,
-    paddingBottom: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold' as const,
-    color: '#1a1a1a',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
   },
   content: {
     flex: 1,
