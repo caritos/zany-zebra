@@ -285,13 +285,6 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* My Clubs Section */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>My Clubs</Text>
-            {myClubs.length > 0 && (
-              <Text style={styles.sectionCount}>{myClubs.length}</Text>
-            )}
-          </View>
-
           <ClubList
             clubs={myClubs}
             loading={myClubsLoading}
@@ -309,18 +302,6 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
 
         {/* Discover Clubs Section */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Discover Clubs Near You</Text>
-            {discoverableClubs.length > 0 && (
-              <Text style={styles.sectionSubtitle}>
-                5 closest clubs
-                {locationSource === 'zip' && ' (based on zip code)'}
-                {locationSource === 'phone' && ' (based on area code)'}
-                {locationSource === 'default' && ' (default location)'}
-              </Text>
-            )}
-          </View>
-
           <ClubList
             clubs={discoverableClubs}
             loading={nearbyLoading}
@@ -337,7 +318,7 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
         </View>
 
         {/* Create Club Button */}
-        {userLocation && !loading && discoverableClubs.length === 0 && !error && (
+        {userLocation && !loading && (
           <View style={styles.createClubContainer}>
             <TouchableOpacity
               style={styles.createClubButton}
@@ -374,34 +355,6 @@ const styles = {
   },
   section: {
     marginBottom: 24,
-  },
-  sectionHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    paddingHorizontal: 20,
-    paddingBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold' as const,
-    color: '#1a1a1a',
-  },
-  sectionCount: {
-    backgroundColor: '#007AFF',
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600' as const,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    minWidth: 24,
-    textAlign: 'center' as const,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic' as const,
   },
   locationErrorContainer: {
     backgroundColor: '#ffeaea',

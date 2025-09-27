@@ -96,11 +96,6 @@ export const CreateClubForm: React.FC<CreateClubFormProps> = ({
     >
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.form}>
-          <Text style={styles.title}>Create New Tennis Club</Text>
-          <Text style={styles.subtitle}>
-            Start a tennis community in your area
-          </Text>
-
           {/* Club Name */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Club Name *</Text>
@@ -202,19 +197,6 @@ const styles = {
   },
   form: {
     padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold' as const,
-    color: '#1a1a1a',
-    marginBottom: 8,
-    textAlign: 'center' as const,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 32,
-    textAlign: 'center' as const,
   },
   inputGroup: {
     marginBottom: 24,

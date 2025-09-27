@@ -28,13 +28,6 @@ export default function PrivacyPolicyScreen() {
     <>
       <Stack.Screen options={{ title: "Privacy Policy", headerShown: true }} />
       <ScrollView style={[styles.container, { backgroundColor }]}>
-        <ThemedView style={styles.header}>
-          <ThemedText style={styles.title}>{privacyData.title}</ThemedText>
-          <ThemedText style={[styles.effectiveDate, { color: textColor + "60" }]}>
-            Effective Date: {privacyData.effectiveDate}
-          </ThemedText>
-        </ThemedView>
-
         {privacyData.sections.map((section, index) => (
           <ThemedView
             key={index}
@@ -83,19 +76,6 @@ export default function PrivacyPolicyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  effectiveDate: {
-    fontSize: 14,
-    fontStyle: "italic",
   },
   section: {
     margin: 16,

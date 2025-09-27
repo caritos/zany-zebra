@@ -34,13 +34,6 @@ export default function FAQScreen() {
     <>
       <Stack.Screen options={{ title: "FAQ / Help", headerShown: true }} />
       <ScrollView style={[styles.container, { backgroundColor }]}>
-        <ThemedView style={styles.header}>
-          <ThemedText style={styles.title}>{faqData.title}</ThemedText>
-          <ThemedText style={[styles.description, { color: textColor + "80" }]}>
-            {faqData.description}
-          </ThemedText>
-        </ThemedView>
-
         {faqData.categories.map((category, categoryIndex) => (
           <ThemedView
             key={categoryIndex}
@@ -92,19 +85,6 @@ export default function FAQScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 16,
-    lineHeight: 22,
   },
   category: {
     margin: 16,
