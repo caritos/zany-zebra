@@ -270,31 +270,10 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
 
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View>
-            <Text style={styles.title}>Tennis Clubs</Text>
-            <Text style={styles.subtitle}>
-              Your clubs and nearby communities
-            </Text>
-          </View>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.refreshButton}
-              onPress={handleRefresh}
-              disabled={loading}
-            >
-              <Text style={styles.refreshButtonText}>
-                {loading ? '↻' : '🔄'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.debugButton}
-              onPress={testDirectDatabaseCall}
-            >
-              <Text style={styles.debugButtonText}>🧪</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <Text style={styles.title}>Tennis Clubs</Text>
+        <Text style={styles.subtitle}>
+          Your clubs and nearby communities
+        </Text>
       </View>
 
       {/* Location Error */}
@@ -402,11 +381,6 @@ const styles = {
     padding: 20,
     paddingBottom: 16,
   },
-  headerContent: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-  },
   title: {
     fontSize: 28,
     fontWeight: 'bold' as const,
@@ -416,34 +390,6 @@ const styles = {
   subtitle: {
     fontSize: 16,
     color: '#666',
-  },
-  buttonRow: {
-    flexDirection: 'row' as const,
-    gap: 8,
-  },
-  refreshButton: {
-    padding: 8,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-  },
-  refreshButtonText: {
-    fontSize: 18,
-  },
-  debugButton: {
-    padding: 8,
-    backgroundColor: '#ffeb3b',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-  },
-  debugButtonText: {
-    fontSize: 18,
   },
   content: {
     flex: 1,

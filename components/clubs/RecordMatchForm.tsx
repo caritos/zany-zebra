@@ -79,7 +79,7 @@ const PlayerSelector: React.FC<PlayerSelectorProps> = ({
   const getDisplayName = (player: PlayerOption | null): string => {
     if (!player) return 'Select player';
     if ('type' in player) return player.name;
-    return player.display_name;
+    return player.nickname ? `${player.nickname} (${player.email})` : player.email;
   };
 
   const renderMemberItem = ({ item }: { item: ClubMemberWithRating }) => (
