@@ -207,10 +207,11 @@ export default function ProfileTab() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 20,
   },
   header: {
     padding: 20,
-    paddingTop: 60,
+    paddingTop: 20,
     alignItems: "center",
   },
   headerTitle: {

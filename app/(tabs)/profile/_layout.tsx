@@ -14,17 +14,19 @@ export default function ProfileTabLayout() {
         tabBarActiveTintColor,
         tabBarInactiveTintColor,
         headerShown: false,
+        tabBarPosition: "top",
         tabBarStyle: {
           backgroundColor: useThemeColor({}, "background"),
-          borderTopWidth: 1,
-          borderTopColor: useThemeColor({}, "icon") + "20",
+          borderBottomWidth: 1,
+          borderBottomColor: useThemeColor({}, "icon") + "20",
+          paddingTop: 50,
+          paddingBottom: 10,
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Profile",
           tabBarIcon: ({ color }) => (
             <IconSymbol name="person.circle" size={24} color={color} />
           ),
@@ -33,7 +35,6 @@ export default function ProfileTabLayout() {
       <Tabs.Screen
         name="stats"
         options={{
-          title: "Stats",
           tabBarIcon: ({ color }) => (
             <IconSymbol name="chart.bar" size={24} color={color} />
           ),
@@ -42,7 +43,6 @@ export default function ProfileTabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
           tabBarIcon: ({ color }) => (
             <IconSymbol name="gearshape" size={24} color={color} />
           ),

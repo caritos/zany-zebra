@@ -1,11 +1,30 @@
-import React from "react";
-import { StyleSheet, ScrollView, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, ScrollView, View, ActivityIndicator } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAuth } from "@/contexts/auth";
 import { useProfile } from "@/hooks/useProfile";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { supabase } from "@/lib/supabase";
+
+interface UserStats {
+  total_matches: number;
+  total_wins: number;
+  total_losses: number;
+  win_rate: number;
+  singles_wins: number;
+  singles_losses: number;
+  doubles_wins: number;
+  doubles_losses: number;
+  total_sets_won: number;
+  total_sets_lost: number;
+  total_games_won: number;
+  total_games_lost: number;
+  current_elo_rating: number;
+  peak_elo_rating: number;
+  matches_played: number;
+}
 
 export default function StatsTab() {
   const backgroundColor = useThemeColor({}, "background");
@@ -13,98 +32,205 @@ export default function StatsTab() {
   const borderColor = useThemeColor({}, "icon");
   const tintColor = useThemeColor({}, "tint");
 
+  const { user } = useAuth();
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchUserStats();
+  }, [user]);
+
+  const fetchUserStats = async () => {
+    console.log('🔍 fetchUserStats called, user:', user);
+
+    if (!user) {
+      console.log('❌ No user found, returning early');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log('📞 Calling get_user_statistics with user ID:', user.id);
+
+      const { data, error } = await supabase.rpc('get_user_statistics', {
+        p_user_id: user.id
+      });
+
+      console.log('📊 RPC response:', { data, error });
+
+      if (error) {
+        console.error('❌ RPC error:', error);
+        throw error;
+      }
+
+      if (data && data.length > 0) {
+        console.log('✅ Setting stats:', data[0]);
+        setStats(data[0]);
+      } else {
+        console.log('📭 No data returned, using defaults');
+        // No stats yet, use defaults
+        setStats({
+          total_matches: 0,
+          total_wins: 0,
+          total_losses: 0,
+          win_rate: 0,
+          singles_wins: 0,
+          singles_losses: 0,
+          doubles_wins: 0,
+          doubles_losses: 0,
+          total_sets_won: 0,
+          total_sets_lost: 0,
+          total_games_won: 0,
+          total_games_lost: 0,
+          current_elo_rating: 1200,
+          peak_elo_rating: 1200,
+          matches_played: 0
+        });
+      }
+    } catch (err) {
+      console.error('💥 Error fetching user stats:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load statistics');
+    } finally {
+      console.log('🏁 Setting loading to false');
+      setLoading(false);
+    }
+  };
+
   const topStats = [
     {
       label: "TOTAL MATCHES",
-      value: "6",
+      value: stats?.total_matches?.toString() || "0",
     },
     {
       label: "WIN RATE",
-      value: "100%",
+      value: `${stats?.win_rate || 0}%`,
       highlight: true,
     },
     {
       label: "W-L RECORD",
-      value: "6-0",
+      value: `${stats?.total_wins || 0}-${stats?.total_losses || 0}`,
     },
   ];
 
-  return (
-    <ScrollView style={[styles.container, { backgroundColor }]}>
-      <ThemedView style={styles.header}>
-        <ThemedText style={styles.headerTitle}>Statistics</ThemedText>
-        <ThemedText style={[styles.headerSubtitle, { color: textColor + "80" }]}>
-          Your performance overview
-        </ThemedText>
-      </ThemedView>
-
-      <View style={styles.topStatsContainer}>
-        {topStats.map((stat, index) => (
-          <View key={index} style={styles.topStatItem}>
-            <ThemedText
-              style={[
-                styles.topStatValue,
-                stat.highlight && { color: tintColor }
-              ]}
-            >
-              {stat.value}
-            </ThemedText>
-            <ThemedText style={[styles.topStatLabel, { color: textColor + "60" }]}>
-              {stat.label}
-            </ThemedText>
-          </View>
-        ))}
+  if (loading) {
+    return (
+      <View style={[styles.container, { backgroundColor }]}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={tintColor} />
+          <ThemedText style={styles.loadingText}>Loading statistics...</ThemedText>
+        </View>
       </View>
+    );
+  }
 
-      <ThemedView style={[styles.section, { borderColor: borderColor + "20" }]}>
-        <ThemedText style={styles.sectionTitle}>Match Breakdown</ThemedText>
-
-        <View style={styles.breakdownContainer}>
-          <View style={styles.breakdownItem}>
-            <ThemedText style={styles.breakdownCategory}>Singles</ThemedText>
-            <ThemedText style={styles.breakdownValue}>6-0</ThemedText>
-            <ThemedText style={[styles.breakdownPercentage, { color: textColor + "60" }]}>
-              (100%)
-            </ThemedText>
-          </View>
-
-          <View style={styles.breakdownItem}>
-            <ThemedText style={styles.breakdownCategory}>Doubles</ThemedText>
-            <ThemedText style={styles.breakdownValue}>0-0</ThemedText>
-            <ThemedText style={[styles.breakdownPercentage, { color: textColor + "60" }]}>
-              (0%)
-            </ThemedText>
-          </View>
+  if (error) {
+    return (
+      <View style={[styles.container, { backgroundColor }]}>
+        <View style={styles.errorContainer}>
+          <ThemedText style={styles.errorText}>Failed to load statistics</ThemedText>
+          <ThemedText style={[styles.errorSubtext, { color: textColor + "60" }]}>
+            {error}
+          </ThemedText>
         </View>
-      </ThemedView>
+      </View>
+    );
+  }
 
-      <ThemedView style={[styles.section, { borderColor: borderColor + "20" }]}>
-        <ThemedText style={styles.sectionTitle}>Detailed Stats</ThemedText>
+  const singlesTotal = (stats?.singles_wins || 0) + (stats?.singles_losses || 0);
+  const doublesTotal = (stats?.doubles_wins || 0) + (stats?.doubles_losses || 0);
+  const setsTotal = (stats?.total_sets_won || 0) + (stats?.total_sets_lost || 0);
+  const gamesTotal = (stats?.total_games_won || 0) + (stats?.total_games_lost || 0);
 
-        <View style={styles.detailedStatsContainer}>
-          <View style={styles.detailedStatItem}>
-            <ThemedText style={styles.detailedStatValue}>6/6</ThemedText>
-            <ThemedText style={[styles.detailedStatLabel, { color: textColor + "60" }]}>
-              SETS WON
-            </ThemedText>
-            <ThemedText style={[styles.detailedStatPercentage, { color: textColor + "60" }]}>
-              (100%)
-            </ThemedText>
-          </View>
+  const singlesWinRate = singlesTotal > 0 ? Math.round((stats?.singles_wins || 0) / singlesTotal * 100) : 0;
+  const doublesWinRate = doublesTotal > 0 ? Math.round((stats?.doubles_wins || 0) / doublesTotal * 100) : 0;
+  const setsWinRate = setsTotal > 0 ? Math.round((stats?.total_sets_won || 0) / setsTotal * 100) : 0;
+  const gamesWinRate = gamesTotal > 0 ? Math.round((stats?.total_games_won || 0) / gamesTotal * 100) : 0;
 
-          <View style={styles.detailedStatItem}>
-            <ThemedText style={styles.detailedStatValue}>36/56</ThemedText>
-            <ThemedText style={[styles.detailedStatLabel, { color: textColor + "60" }]}>
-              GAMES WON
-            </ThemedText>
-            <ThemedText style={[styles.detailedStatPercentage, { color: textColor + "60" }]}>
-              (64%)
-            </ThemedText>
-          </View>
+  return (
+    <View style={[styles.container, { backgroundColor }]}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingTop: 10 }}
+      >
+        <View style={styles.topStatsContainer}>
+          {topStats.map((stat, index) => (
+            <View key={index} style={styles.topStatItem}>
+              <ThemedText
+                style={[
+                  styles.topStatValue,
+                  stat.highlight && { color: tintColor }
+                ]}
+              >
+                {stat.value}
+              </ThemedText>
+              <ThemedText style={[styles.topStatLabel, { color: textColor + "60" }]}>
+                {stat.label}
+              </ThemedText>
+            </View>
+          ))}
         </View>
-      </ThemedView>
 
-    </ScrollView>
+        <ThemedView style={[styles.section, { borderColor: borderColor + "20" }]}>
+          <ThemedText style={styles.sectionTitle}>Match Breakdown</ThemedText>
+
+          <View style={styles.breakdownContainer}>
+            <View style={styles.breakdownItem}>
+              <ThemedText style={styles.breakdownCategory}>Singles</ThemedText>
+              <ThemedText style={styles.breakdownValue}>
+                {stats?.singles_wins || 0}-{stats?.singles_losses || 0}
+              </ThemedText>
+              <ThemedText style={[styles.breakdownPercentage, { color: textColor + "60" }]}>
+                ({singlesWinRate}%)
+              </ThemedText>
+            </View>
+
+            <View style={styles.breakdownItem}>
+              <ThemedText style={styles.breakdownCategory}>Doubles</ThemedText>
+              <ThemedText style={styles.breakdownValue}>
+                {stats?.doubles_wins || 0}-{stats?.doubles_losses || 0}
+              </ThemedText>
+              <ThemedText style={[styles.breakdownPercentage, { color: textColor + "60" }]}>
+                ({doublesWinRate}%)
+              </ThemedText>
+            </View>
+          </View>
+        </ThemedView>
+
+        <ThemedView style={[styles.section, { borderColor: borderColor + "20" }]}>
+          <ThemedText style={styles.sectionTitle}>Detailed Stats</ThemedText>
+
+          <View style={styles.detailedStatsContainer}>
+            <View style={styles.detailedStatItem}>
+              <ThemedText style={styles.detailedStatValue}>
+                {stats?.total_sets_won || 0}/{setsTotal}
+              </ThemedText>
+              <ThemedText style={[styles.detailedStatLabel, { color: textColor + "60" }]}>
+                SETS WON
+              </ThemedText>
+              <ThemedText style={[styles.detailedStatPercentage, { color: textColor + "60" }]}>
+                ({setsWinRate}%)
+              </ThemedText>
+            </View>
+
+            <View style={styles.detailedStatItem}>
+              <ThemedText style={styles.detailedStatValue}>
+                {stats?.total_games_won || 0}/{gamesTotal}
+              </ThemedText>
+              <ThemedText style={[styles.detailedStatLabel, { color: textColor + "60" }]}>
+                GAMES WON
+              </ThemedText>
+              <ThemedText style={[styles.detailedStatPercentage, { color: textColor + "60" }]}>
+                ({gamesWinRate}%)
+              </ThemedText>
+            </View>
+          </View>
+        </ThemedView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -112,22 +238,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    padding: 20,
-    paddingTop: 60,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
   },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  headerSubtitle: {
+  loadingText: {
+    marginTop: 16,
     fontSize: 16,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  errorSubtext: {
+    fontSize: 14,
+    textAlign: 'center',
   },
   topStatsContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
     paddingHorizontal: 16,
   },
   topStatItem: {

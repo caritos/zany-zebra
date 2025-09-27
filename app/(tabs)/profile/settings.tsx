@@ -81,12 +81,6 @@ export default function SettingsTab() {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor }]}>
-      <ThemedView style={styles.header}>
-        <ThemedText style={styles.headerTitle}>Settings</ThemedText>
-      </ThemedView>
-
-
-
       <View style={styles.menuContainer}>
         <TouchableOpacity
           style={styles.menuItem}
@@ -134,18 +128,11 @@ export default function SettingsTab() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: "bold",
+    paddingTop: 20,
   },
   menuContainer: {
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 20,
   },
   menuItem: {
     flexDirection: "row",
