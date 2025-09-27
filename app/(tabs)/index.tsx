@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { View } from 'react-native';
 import { NearbyClubsScreen } from '@/components/clubs/NearbyClubsScreen';
 import { ClubPage } from '@/components/clubs/ClubPage';
 import { ClubWithDistance, ClubSearchResult, Club } from '@/types/clubs';
@@ -8,6 +9,7 @@ type ClubItem = ClubWithDistance | ClubSearchResult | MyClub;
 
 export default function ClubsScreen() {
   const [selectedClub, setSelectedClub] = useState<Club | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleClubPress = (club: ClubItem) => {
     // Convert club item to Club type for the club page
@@ -27,15 +29,23 @@ export default function ClubsScreen() {
     };
 
     setSelectedClub(clubData);
+    setModalVisible(true);
   };
 
-  const handleBackToList = () => {
-    setSelectedClub(null);
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    // Small delay to allow modal to close before clearing the club
+    setTimeout(() => setSelectedClub(null), 300);
   };
 
-  if (selectedClub) {
-    return <ClubPage club={selectedClub} onBack={handleBackToList} />;
-  }
-
-  return <NearbyClubsScreen onClubPress={handleClubPress} />;
+  return (
+    <View style={{ flex: 1 }}>
+      <NearbyClubsScreen onClubPress={handleClubPress} />
+      <ClubPage
+        club={selectedClub}
+        visible={modalVisible}
+        onClose={handleCloseModal}
+      />
+    </View>
+  );
 }
