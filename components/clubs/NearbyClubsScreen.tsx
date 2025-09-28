@@ -337,7 +337,7 @@ const styles = {
     flex: 1,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 8,
   },
   locationErrorContainer: {
     backgroundColor: '#ffeaea',
