@@ -508,4 +508,204 @@ export const globalStyles = StyleSheet.create({
     color: '#0a7ea4',
   },
 
+  // ClubList component styles
+  clubListContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  clubListContent: {
+    padding: 16,
+  },
+  clubListEmptyContent: {
+    flex: 1,
+  },
+  clubCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  clubHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  clubInfo: {
+    flex: 1,
+    marginRight: 16,
+  },
+  clubName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+    marginBottom: 6,
+  },
+  clubLocationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  clubLocationText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  clubDistanceBadge: {
+    backgroundColor: '#e3f2fd',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  clubDistanceText: {
+    fontSize: 12,
+    color: '#1976d2',
+    fontWeight: '600',
+  },
+  clubPlayerCount: {
+    alignItems: 'center',
+  },
+  clubPlayerCountNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#007AFF',
+  },
+  clubPlayerCountLabel: {
+    fontSize: 12,
+    color: '#666',
+  },
+  clubDescription: {
+    fontSize: 14,
+    color: '#555',
+    lineHeight: 20,
+  },
+  clubEmptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  clubEmptyStateIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  clubEmptyStateTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  clubEmptyStateMessage: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  clubErrorState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  clubErrorStateIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  clubErrorStateTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#dc3545',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  clubErrorStateMessage: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+  clubRetryButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  clubRetryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  clubLoadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  clubLoadingText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  clubMembershipSection: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+  },
+  clubMembershipRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  clubMemberBadge: {
+    backgroundColor: '#e8f5e8',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  clubMemberBadgeText: {
+    color: '#4CAF50',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  clubJoinedDate: {
+    fontSize: 12,
+    color: '#666',
+    flex: 1,
+    textAlign: 'center',
+  },
+  clubJoinButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  clubJoinButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  clubLeaveButton: {
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  clubLeaveButtonText: {
+    color: '#666',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
 });
