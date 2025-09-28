@@ -24,13 +24,21 @@ export class MatchService {
 
   // Record a new match
   static async recordMatch(match: RecordMatchRequest): Promise<RecordMatchResult> {
-    const { data, error } = await supabase.rpc('record_match', {
+    // Convert the old format to the new record_match_with_elo format
+    // This is a compatibility layer for the old interface
+    const { data, error } = await supabase.rpc('record_match_with_elo', {
       p_club_id: match.club_id,
-      p_player1_id: match.player1_id,
-      p_player2_id: match.player2_id,
-      p_player1_sets: match.player1_sets,
-      p_player2_sets: match.player2_sets,
-      p_game_scores: match.game_scores || null,
+      p_match_type: 'singles', // Default to singles, this should be determined by the caller
+      p_team1_player1_user_id: match.player1_id,
+      p_team1_player1_guest_name: null,
+      p_team1_player2_user_id: null,
+      p_team1_player2_guest_name: null,
+      p_team2_player1_user_id: match.player2_id,
+      p_team2_player1_guest_name: null,
+      p_team2_player2_user_id: null,
+      p_team2_player2_guest_name: null,
+      p_winner: match.player1_sets > match.player2_sets ? 1 : 2,
+      p_sets: match.sets || [],
       p_notes: match.notes || null,
     });
 
@@ -38,11 +46,11 @@ export class MatchService {
       throw new Error(`Failed to record match: ${error.message}`);
     }
 
-    return data?.[0] || {
-      match_id: null,
-      success: false,
-      message: 'Unknown error',
-      player1_elo_change: 0,
+    return {
+      match_id: data?.match_id || null,
+      success: data?.success || false,
+      message: data?.message || 'Unknown error',
+      player1_elo_change: 0, // ELO changes not implemented yet
       player2_elo_change: 0,
     };
   }

@@ -21,7 +21,6 @@ export interface Match {
   player2_id: string;
   player1_sets: number;
   player2_sets: number;
-  game_scores?: number[][]; // e.g., [[6,4], [7,5]]
   winner_id: string;
   player1_elo_before: number;
   player2_elo_before: number;
@@ -58,7 +57,6 @@ export interface MatchWithPlayers {
   player2_name: string;
   player1_sets: number;
   player2_sets: number;
-  game_scores?: number[][];
   winner_id: string;
   player1_elo_before: number;
   player2_elo_before: number;
@@ -90,7 +88,13 @@ export interface RecordMatchRequest {
   player2_id: string;
   player1_sets: number;
   player2_sets: number;
-  game_scores?: number[][];
+  sets?: {
+    set_number: number;
+    team1_games: number;
+    team2_games: number;
+    team1_tiebreak_points?: number | null;
+    team2_tiebreak_points?: number | null;
+  }[];
   notes?: string;
 }
 

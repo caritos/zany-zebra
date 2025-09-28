@@ -1,6 +1,9 @@
 -- Function to record a match and update ELO ratings atomically
 -- This is the main function called by the React Native app to record tennis matches
 
+-- Drop the old function first (required when changing parameter names)
+DROP FUNCTION IF EXISTS record_match_with_elo(bigint,text,uuid,text,uuid,text,uuid,text,uuid,text,integer,jsonb,text);
+
 CREATE OR REPLACE FUNCTION record_match_with_elo(
   p_club_id BIGINT,
   p_match_type TEXT,
@@ -13,7 +16,7 @@ CREATE OR REPLACE FUNCTION record_match_with_elo(
   p_team2_player2_user_id UUID,
   p_team2_player2_guest_name TEXT,
   p_winner INTEGER,
-  p_game_scores JSONB,
+  p_sets JSONB,
   p_notes TEXT DEFAULT NULL
 )
 RETURNS JSONB
@@ -44,25 +47,25 @@ BEGIN
       team1_player2_user_id, team1_player2_guest_name,
       team2_player1_user_id, team2_player1_guest_name,
       team2_player2_user_id, team2_player2_guest_name,
-      winner, game_scores, notes, recorded_by, match_date
+      winner, notes, recorded_by, match_date
     ) VALUES (
       p_club_id, p_match_type,
       p_team1_player1_user_id, p_team1_player1_guest_name,
       p_team1_player2_user_id, p_team1_player2_guest_name,
       p_team2_player1_user_id, p_team2_player1_guest_name,
       p_team2_player2_user_id, p_team2_player2_guest_name,
-      p_winner, p_game_scores, p_notes, auth.uid(), NOW()
+      p_winner, p_notes, auth.uid(), NOW()
     ) RETURNING id INTO v_match_id;
 
-    -- Convert game scores to text for ELO calculation
-    IF p_game_scores IS NOT NULL THEN
+    -- Convert sets to text for ELO calculation
+    IF p_sets IS NOT NULL THEN
       SELECT string_agg(
         (set_info->>'team1_games') || '-' || (set_info->>'team2_games'),
         ','
         ORDER BY (set_info->>'set_number')::INTEGER
       )
       INTO v_scores_text
-      FROM jsonb_array_elements(p_game_scores->'sets') AS set_info;
+      FROM jsonb_array_elements(p_sets) AS set_info;
     END IF;
 
     -- TODO: Add ELO rating calculations here
@@ -72,8 +75,8 @@ BEGIN
       'message', 'Match recorded successfully (ELO calculations to be implemented)'
     );
 
-    -- Insert match sets from game_scores
-    IF p_game_scores IS NOT NULL AND p_game_scores ? 'sets' THEN
+    -- Insert match sets from sets data
+    IF p_sets IS NOT NULL THEN
       INSERT INTO public.match_sets (
         match_id, set_number, team1_games, team2_games,
         team1_tiebreak_points, team2_tiebreak_points, winner
@@ -87,7 +90,7 @@ BEGIN
         (set_info->>'team2_tiebreak_points')::INTEGER,
         CASE WHEN (set_info->>'team1_games')::INTEGER > (set_info->>'team2_games')::INTEGER
              THEN 1 ELSE 2 END
-      FROM jsonb_array_elements(p_game_scores->'sets') AS set_info;
+      FROM jsonb_array_elements(p_sets) AS set_info;
     END IF;
 
     -- Return success with details
@@ -110,4 +113,4 @@ $$;
 GRANT EXECUTE ON FUNCTION record_match_with_elo(BIGINT, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, INTEGER, JSONB, TEXT) TO authenticated;
 
 -- Add helpful comment
-COMMENT ON FUNCTION record_match_with_elo(BIGINT, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, INTEGER, JSONB, TEXT) IS 'Records tennis match with automatic ELO rating updates (when implemented)';
+COMMENT ON FUNCTION record_match_with_elo(BIGINT, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, INTEGER, JSONB, TEXT) IS 'Records tennis match with match sets and automatic ELO rating updates (when implemented)';

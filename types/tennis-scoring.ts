@@ -11,16 +11,10 @@ export interface SetScore {
   tie_breaker: TieBreaker | null;
 }
 
-export interface GameScores {
-  sets: SetScore[];
-  match_format: 'best_of_3' | 'best_of_5';
-}
-
 export interface MatchResult {
   team1_sets_won: number;
   team2_sets_won: number;
   winner: 1 | 2 | null;
-  game_scores: GameScores;
 }
 
 // Helper functions for tennis scoring
@@ -79,11 +73,7 @@ export class TennisScoring {
     return {
       team1_sets_won: team1SetsWon,
       team2_sets_won: team2SetsWon,
-      winner,
-      game_scores: {
-        sets,
-        match_format: matchFormat
-      }
+      winner
     };
   }
 

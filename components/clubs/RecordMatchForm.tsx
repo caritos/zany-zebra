@@ -341,15 +341,13 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
         p_team2_player2_user_id: team2Player2Data.userId,
         p_team2_player2_guest_name: team2Player2Data.guestName,
         p_winner: winner,
-        p_game_scores: {
-          sets: sets.map((set, index) => ({
-            set_number: index + 1,
-            team1_games: set.team1_games,
-            team2_games: set.team2_games,
-            team1_tiebreak_points: set.tie_breaker?.team1_points || null,
-            team2_tiebreak_points: set.tie_breaker?.team2_points || null,
-          }))
-        },
+        p_sets: sets.map((set, index) => ({
+          set_number: index + 1,
+          team1_games: set.team1_games,
+          team2_games: set.team2_games,
+          team1_tiebreak_points: set.tie_breaker?.team1_points || null,
+          team2_tiebreak_points: set.tie_breaker?.team2_points || null,
+        })),
         p_notes: notes.trim() || null,
       });
 
