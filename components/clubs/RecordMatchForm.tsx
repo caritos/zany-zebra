@@ -429,9 +429,9 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
             </Text>
           </View>
 
-          {/* Team 1 */}
+          {/* Your Team */}
           <View style={styles.teamContainer}>
-            <Text style={styles.teamTitle}>Team 1</Text>
+            <Text style={styles.teamTitle}>Your Team</Text>
 
             <View style={styles.lockedPlayerContainer}>
               <Text style={styles.lockedPlayerLabel}>Player 1 (You)</Text>
@@ -458,9 +458,9 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
             <Text style={styles.vsText}>VS</Text>
           </View>
 
-          {/* Team 2 */}
+          {/* Opponent Team */}
           <View style={styles.teamContainer}>
-            <Text style={styles.teamTitle}>Team 2</Text>
+            <Text style={styles.teamTitle}>Opponent Team</Text>
 
             <PlayerSelector
               title={matchType === 'singles' ? 'Opponent' : 'Player 1'}

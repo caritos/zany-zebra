@@ -108,7 +108,7 @@ export const SetScoreInput: React.FC<SetScoreInputProps> = ({
 
       <View style={styles.gameScoreRow}>
         <View style={styles.scoreInput}>
-          <Text style={styles.teamLabel}>Team 1</Text>
+          <Text style={styles.teamLabel}>Your Team</Text>
           <TextInput
             style={[styles.gameInput, !isValidSet() && styles.invalidInput]}
             value={team1Games}
@@ -122,7 +122,7 @@ export const SetScoreInput: React.FC<SetScoreInputProps> = ({
         <Text style={styles.scoreSeparator}>-</Text>
 
         <View style={styles.scoreInput}>
-          <Text style={styles.teamLabel}>Team 2</Text>
+          <Text style={styles.teamLabel}>Opponents</Text>
           <TextInput
             style={[styles.gameInput, !isValidSet() && styles.invalidInput]}
             value={team2Games}
