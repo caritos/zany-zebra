@@ -4,7 +4,7 @@
     "slug": "zany-zebra",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/retro-tennis-ball-motion.png",
     "scheme": "com.caritos.zany-zebra",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -27,14 +27,14 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/retro-tennis-ball-motion.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/retro-tennis-ball-motion.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
