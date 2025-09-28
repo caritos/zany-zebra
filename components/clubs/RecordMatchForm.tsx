@@ -11,7 +11,9 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  Button,
 } from 'react-native';
+// import DateTimePicker from '@react-native-community/datetimepicker'; // Removed - using custom picker
 import { ClubMemberWithRating } from '@/types/matches';
 import { SetScore, TennisScoring } from '@/types/tennis-scoring';
 import { SetScoreInput } from './SetScoreInput';
@@ -197,6 +199,8 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
   const [sets, setSets] = useState<SetScore[]>([{ team1_games: 0, team2_games: 0, tie_breaker: null }]);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
+  const [matchDate, setMatchDate] = useState(new Date());
+  const [dateText, setDateText] = useState(new Date().toLocaleDateString());
 
   // Auto-select current user as team1Player1 when form opens
   useEffect(() => {
@@ -221,6 +225,9 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
     setTeam2Player2(null);
     setSets([{ team1_games: 0, team2_games: 0, tie_breaker: null }]);
     setNotes('');
+    const newDate = new Date();
+    setMatchDate(newDate);
+    setDateText(newDate.toLocaleDateString());
   };
 
   const handleClose = () => {
@@ -329,18 +336,12 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
       // Record the match using the database function
       // Use the memoized matchType
 
+      // Match the parameter order expected by the current database function
       const { data: matchResult, error: matchError } = await supabase.rpc('record_match_with_elo', {
         p_club_id: clubId,
+        p_match_date: matchDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
         p_match_type: matchType,
-        p_team1_player1_user_id: team1Player1Data.userId,
-        p_team1_player1_guest_name: team1Player1Data.guestName,
-        p_team1_player2_user_id: team1Player2Data.userId,
-        p_team1_player2_guest_name: team1Player2Data.guestName,
-        p_team2_player1_user_id: team2Player1Data.userId,
-        p_team2_player1_guest_name: team2Player1Data.guestName,
-        p_team2_player2_user_id: team2Player2Data.userId,
-        p_team2_player2_guest_name: team2Player2Data.guestName,
-        p_winner: winner,
+        p_notes: notes.trim() || null,
         p_sets: sets.map((set, index) => ({
           set_number: index + 1,
           team1_games: set.team1_games,
@@ -348,7 +349,15 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
           team1_tiebreak_points: set.tie_breaker?.team1_points || null,
           team2_tiebreak_points: set.tie_breaker?.team2_points || null,
         })),
-        p_notes: notes.trim() || null,
+        p_team1_player1_guest_name: team1Player1Data.guestName,
+        p_team1_player1_user_id: team1Player1Data.userId,
+        p_team1_player2_guest_name: team1Player2Data.guestName,
+        p_team1_player2_user_id: team1Player2Data.userId,
+        p_team2_player1_guest_name: team2Player1Data.guestName,
+        p_team2_player1_user_id: team2Player1Data.userId,
+        p_team2_player2_guest_name: team2Player2Data.guestName,
+        p_team2_player2_user_id: team2Player2Data.userId,
+        p_winner: winner,
       });
 
       if (matchError) throw matchError;
@@ -421,6 +430,48 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {/* Match Date */}
+          <View style={styles.dateContainer}>
+            <Text style={styles.sectionTitle}>Match Date</Text>
+            <View style={styles.selectorButton}>
+              <TextInput
+                style={styles.selectedPlayerText}
+                value={dateText}
+                onChangeText={setDateText}
+                onBlur={() => {
+                  // Validate on blur with better date parsing
+                  let parsedDate = new Date(dateText);
+
+                  // If direct parsing fails, try to parse MM/DD/YYYY format manually
+                  if (isNaN(parsedDate.getTime())) {
+                    const parts = dateText.split('/');
+                    if (parts.length === 3) {
+                      const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed
+                      const day = parseInt(parts[1], 10);
+                      const year = parseInt(parts[2], 10);
+                      parsedDate = new Date(year, month, day);
+                    }
+                  }
+
+                  const today = new Date();
+                  today.setHours(23, 59, 59, 999); // End of today
+
+                  if (!isNaN(parsedDate.getTime()) && parsedDate <= today) {
+                    setMatchDate(parsedDate);
+                    setDateText(parsedDate.toLocaleDateString()); // Normalize the format
+                  } else {
+                    // Reset to current valid date if invalid
+                    const validDate = new Date();
+                    setMatchDate(validDate);
+                    setDateText(validDate.toLocaleDateString());
+                  }
+                }}
+                placeholder="MM/DD/YYYY"
+                placeholderTextColor="#999"
+              />
+            </View>
+          </View>
+
           {/* Match Type Display */}
           <View style={styles.matchTypeContainer}>
             <Text style={styles.sectionTitle}>Match Type: {matchType === 'singles' ? 'Singles' : 'Doubles'}</Text>
@@ -853,5 +904,105 @@ const styles = {
     color: '#fff',
     fontSize: 14,
     fontWeight: '600' as const,
+  },
+  dateContainer: {
+    marginBottom: 20,
+  },
+  dateButton: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    alignItems: 'center' as const,
+  },
+  dateButtonText: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500' as const,
+  },
+  datePickerDoneButton: {
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+    padding: 12,
+    alignItems: 'center' as const,
+    marginTop: 10,
+  },
+  datePickerDoneText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600' as const,
+  },
+  datePickerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  datePickerModal: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    margin: 20,
+    minWidth: 300,
+  },
+  datePickerTitle: {
+    fontSize: 20,
+    fontWeight: '600' as const,
+    textAlign: 'center' as const,
+    marginBottom: 20,
+    color: '#333',
+  },
+  quickDateButtons: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    marginBottom: 20,
+  },
+  quickDateButton: {
+    backgroundColor: '#f0f0f0',
+    padding: 12,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  quickDateButtonText: {
+    textAlign: 'center' as const,
+    fontSize: 14,
+    fontWeight: '500' as const,
+    color: '#333',
+  },
+  selectedDateText: {
+    fontSize: 16,
+    textAlign: 'center' as const,
+    marginBottom: 20,
+    color: '#666',
+  },
+  datePickerButtons: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+  },
+  datePickerButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 8,
+    marginHorizontal: 8,
+  },
+  cancelButton: {
+    backgroundColor: '#f0f0f0',
+  },
+  confirmButton: {
+    backgroundColor: '#007AFF',
+  },
+  cancelButtonText: {
+    textAlign: 'center' as const,
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: '#333',
+  },
+  confirmButtonText: {
+    textAlign: 'center' as const,
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: '#fff',
   },
 };
