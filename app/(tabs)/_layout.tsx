@@ -22,7 +22,7 @@ export default function TabLayout() {
         options={{
           title: "Clubs",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="tennisball.fill" color={color} />
+            <IconSymbol size={28} name="tennis.racket" color={color} />
           ),
         }}
       />
