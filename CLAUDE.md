@@ -69,3 +69,4 @@ The project includes development logs in `/docs/development.md` that document de
 - in the app, let's refer to the postgis region as "club"
 - always use full table names in queries
 - all database functions should be stored in /database/functions/
+- elo scores apply to playing with guest players
