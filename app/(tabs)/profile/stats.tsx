@@ -2,10 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { ScrollView, View, ActivityIndicator } from "react-native";
 import { globalStyles } from '../../styles/styles';
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAuth } from "@/contexts/auth";
-import { useProfile } from "@/hooks/useProfile";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { supabase } from "@/lib/supabase";
 
@@ -30,7 +27,6 @@ interface UserStats {
 export default function StatsTab() {
   const backgroundColor = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
-  const borderColor = useThemeColor({}, "icon");
   const tintColor = useThemeColor({}, "tint");
 
   const { session } = useAuth();
@@ -156,17 +152,22 @@ export default function StatsTab() {
     <ScrollView
       style={[globalStyles.container, { backgroundColor }]}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={[globalStyles.scrollContainer, { paddingTop: 40 }]}
+      contentContainerStyle={globalStyles.scrollContainer}
     >
-        <ThemedView style={globalStyles.section}>
+        {/* Key Stats */}
+        <View style={globalStyles.statsSection}>
+          <ThemedText style={[globalStyles.statsSectionTitle, { color: textColor + "80" }]}>
+            OVERVIEW
+          </ThemedText>
+
           {topStats.map((stat, index) => (
-            <View key={index} style={globalStyles.metricRow}>
-              <ThemedText style={globalStyles.metricLabel}>
+            <View key={index} style={globalStyles.statsRow}>
+              <ThemedText style={globalStyles.statsLabel}>
                 {stat.label}
               </ThemedText>
               <ThemedText
                 style={[
-                  globalStyles.metricValue,
+                  globalStyles.statsValue,
                   stat.highlight && { color: tintColor }
                 ]}
               >
@@ -174,43 +175,49 @@ export default function StatsTab() {
               </ThemedText>
             </View>
           ))}
-        </ThemedView>
+        </View>
 
-        <ThemedView style={globalStyles.section}>
-          <ThemedText style={globalStyles.sectionTitle}>Match Breakdown</ThemedText>
+        {/* Match Breakdown */}
+        <View style={globalStyles.statsSection}>
+          <ThemedText style={[globalStyles.statsSectionTitle, { color: textColor + "80" }]}>
+            MATCH BREAKDOWN
+          </ThemedText>
 
-          <View style={globalStyles.metricRow}>
-            <ThemedText style={globalStyles.metricLabel}>Singles</ThemedText>
-            <ThemedText style={globalStyles.metricValue}>
+          <View style={globalStyles.statsRow}>
+            <ThemedText style={globalStyles.statsLabel}>Singles</ThemedText>
+            <ThemedText style={globalStyles.statsValue}>
               {stats?.singles_wins || 0}-{stats?.singles_losses || 0} ({singlesWinRate}%)
             </ThemedText>
           </View>
 
-          <View style={globalStyles.metricRow}>
-            <ThemedText style={globalStyles.metricLabel}>Doubles</ThemedText>
-            <ThemedText style={globalStyles.metricValue}>
+          <View style={globalStyles.statsRow}>
+            <ThemedText style={globalStyles.statsLabel}>Doubles</ThemedText>
+            <ThemedText style={globalStyles.statsValue}>
               {stats?.doubles_wins || 0}-{stats?.doubles_losses || 0} ({doublesWinRate}%)
             </ThemedText>
           </View>
-        </ThemedView>
+        </View>
 
-        <ThemedView style={globalStyles.section}>
-          <ThemedText style={globalStyles.sectionTitle}>Detailed Stats</ThemedText>
+        {/* Detailed Stats */}
+        <View style={globalStyles.statsSection}>
+          <ThemedText style={[globalStyles.statsSectionTitle, { color: textColor + "80" }]}>
+            DETAILED STATS
+          </ThemedText>
 
-          <View style={globalStyles.metricRow}>
-            <ThemedText style={globalStyles.metricLabel}>Sets Won</ThemedText>
-            <ThemedText style={globalStyles.metricValue}>
+          <View style={globalStyles.statsRow}>
+            <ThemedText style={globalStyles.statsLabel}>Sets Won</ThemedText>
+            <ThemedText style={globalStyles.statsValue}>
               {stats?.total_sets_won || 0}/{setsTotal} ({setsWinRate}%)
             </ThemedText>
           </View>
 
-          <View style={globalStyles.metricRow}>
-            <ThemedText style={globalStyles.metricLabel}>Games Won</ThemedText>
-            <ThemedText style={globalStyles.metricValue}>
+          <View style={globalStyles.statsRow}>
+            <ThemedText style={globalStyles.statsLabel}>Games Won</ThemedText>
+            <ThemedText style={globalStyles.statsValue}>
               {stats?.total_games_won || 0}/{gamesTotal} ({gamesWinRate}%)
             </ThemedText>
           </View>
-        </ThemedView>
+        </View>
     </ScrollView>
   );
 }

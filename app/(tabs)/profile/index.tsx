@@ -109,9 +109,11 @@ export default function ProfileTab() {
             EMAIL
           </ThemedText>
           <View style={[globalStyles.inputContainer, { borderColor: borderColor + "20" }]}>
-            <ThemedText style={[globalStyles.fieldValue, { color: textColor + "60" }]}>
-              {session?.user?.email || "Not available"}
-            </ThemedText>
+            <View style={globalStyles.fieldRow}>
+              <ThemedText style={[globalStyles.fieldValue, { color: textColor + "60" }]}>
+                {session?.user?.email || "Not available"}
+              </ThemedText>
+            </View>
           </View>
 
           <ThemedText style={[globalStyles.sectionLabel, { color: textColor + "80" }]}>

@@ -325,7 +325,7 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
       // Record the match using the new ELO function
       const matchType = getMatchType();
 
-      const { data: result, error: matchError } = await supabase.rpc('record_match_with_elo', {
+      const { error: matchError } = await supabase.rpc('record_match_with_elo', {
         p_club_id: clubId,
         p_match_type: matchType,
         p_team1_player1_user_id: team1Player1Data.userId,

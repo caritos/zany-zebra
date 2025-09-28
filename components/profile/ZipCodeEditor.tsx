@@ -9,6 +9,7 @@ import {
   Modal,
 } from 'react-native';
 import { UseProfileReturn } from '@/hooks/useProfile';
+import { globalStyles } from '@/app/styles/styles';
 
 interface ZipCodeEditorProps {
   profile: UseProfileReturn['profile'];
@@ -42,7 +43,7 @@ export const ZipCodeEditor: React.FC<ZipCodeEditorProps> = ({
       } else {
         Alert.alert('Error', result.message);
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to update zip code');
     } finally {
       setUpdating(false);
@@ -56,18 +57,18 @@ export const ZipCodeEditor: React.FC<ZipCodeEditorProps> = ({
 
   return (
     <>
-      <View style={styles.infoRow}>
-        <Text style={styles.infoLabel}>Zip Code</Text>
-        <View style={styles.zipCodeContainer}>
-          <Text style={styles.infoValue}>
+      <View style={globalStyles.infoRow}>
+        <Text style={globalStyles.infoLabel}>Zip Code</Text>
+        <View style={globalStyles.zipCodeContainer}>
+          <Text style={globalStyles.infoValue}>
             {profile?.zip_code || 'Not set'}
           </Text>
           <TouchableOpacity
-            style={styles.editButton}
+            style={globalStyles.editButton}
             onPress={() => setIsEditing(true)}
             disabled={loading}
           >
-            <Text style={styles.editButtonText}>Edit</Text>
+            <Text style={globalStyles.editButtonText}>Edit</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -78,15 +79,15 @@ export const ZipCodeEditor: React.FC<ZipCodeEditorProps> = ({
         animationType="slide"
         onRequestClose={handleCancel}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Update Zip Code</Text>
-            <Text style={styles.modalSubtitle}>
+        <View style={globalStyles.modalOverlay}>
+          <View style={globalStyles.modalContent}>
+            <Text style={globalStyles.modalTitle}>Update Zip Code</Text>
+            <Text style={globalStyles.modalSubtitle}>
               This helps us find tennis clubs near you
             </Text>
 
             <TextInput
-              style={styles.input}
+              style={globalStyles.fieldInput}
               value={zipCodeValue}
               onChangeText={setZipCodeValue}
               placeholder="Enter your zip code"
@@ -95,24 +96,24 @@ export const ZipCodeEditor: React.FC<ZipCodeEditorProps> = ({
               autoFocus
             />
 
-            <View style={styles.buttonContainer}>
+            <View style={globalStyles.buttonContainer}>
               <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
+                style={[globalStyles.button, globalStyles.cancelButton]}
                 onPress={handleCancel}
                 disabled={updating}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={globalStyles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.button, styles.saveButton]}
+                style={[globalStyles.button, globalStyles.saveButton]}
                 onPress={handleSave}
                 disabled={updating || !zipCodeValue.trim()}
               >
                 {updating ? (
                   <ActivityIndicator color="#fff" size="small" />
                 ) : (
-                  <Text style={styles.saveButtonText}>Save</Text>
+                  <Text style={globalStyles.saveButtonText}>Save</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -121,104 +122,4 @@ export const ZipCodeEditor: React.FC<ZipCodeEditorProps> = ({
       </Modal>
     </>
   );
-};
-
-const styles = {
-  infoRow: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  infoLabel: {
-    fontSize: 14,
-    opacity: 0.6,
-    color: '#333',
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '500' as const,
-    color: '#333',
-  },
-  zipCodeContainer: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 12,
-  },
-  editButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  editButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600' as const,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    width: '90%' as const,
-    maxWidth: 400,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold' as const,
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'center' as const,
-  },
-  modalSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 24,
-    textAlign: 'center' as const,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    marginBottom: 24,
-    backgroundColor: '#f9f9f9',
-  },
-  buttonContainer: {
-    flexDirection: 'row' as const,
-    gap: 12,
-  },
-  button: {
-    flex: 1,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-  },
-  cancelButton: {
-    backgroundColor: '#f0f0f0',
-  },
-  saveButton: {
-    backgroundColor: '#007AFF',
-  },
-  cancelButtonText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: '600' as const,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600' as const,
-  },
 };

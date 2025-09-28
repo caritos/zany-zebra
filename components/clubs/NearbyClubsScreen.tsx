@@ -1,22 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  Alert,
   StatusBar,
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import { useNearbyClubs, useGeocodingZip } from '@/hooks/useClubs';
-import { useMyClubs, useClubMembership } from '@/hooks/useClubMembership';
+import { useMyClubs } from '@/hooks/useClubMembership';
 import { useProfile } from '@/hooks/useProfile';
-import { ClubService, GeocodingService } from '@/services/clubService';
-import { supabase } from '@/lib/supabase';
+import { ClubService } from '@/services/clubService';
 import { ClubList } from './ClubList';
 import { CreateClubForm } from './CreateClubForm';
-import { UserLocation, ClubWithDistance, ClubSearchResult, Club } from '@/types/clubs';
+import { UserLocation, ClubWithDistance, ClubSearchResult } from '@/types/clubs';
 import { MyClub } from '@/types/clubMembership';
 
 type ClubItem = ClubWithDistance | ClubSearchResult | MyClub;
@@ -70,7 +68,7 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
     if (profile !== undefined) { // Only run after profile is loaded
       getCurrentLocation();
     }
-  }, [profile, geocodeZip]);
+  }, [profile, geocodeZip, getCurrentLocation]);
 
   const getAreaCodeFromPhone = (phoneNumber: string): string | null => {
     // Extract area code from US phone number (first 3 digits after country code)
@@ -96,7 +94,7 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
     return areaCodeToZip[areaCode] || '11790'; // Default to 11790
   };
 
-  const getCurrentLocation = async () => {
+  const getCurrentLocation = useCallback(async () => {
     try {
       // Try GPS first
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -116,7 +114,7 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
           setLocationSource('gps');
           setLocationError(null);
           return;
-        } catch (gpsError) {
+        } catch {
           console.log('GPS failed, trying fallback locations...');
         }
       }
@@ -190,7 +188,7 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
       console.error('Error getting location:', error);
       setLocationError('Unable to determine your location');
     }
-  };
+  }, [profile, geocodeZip]);
 
   const handleCreateClubSuccess = (clubId: number) => {
     setShowCreateForm(false);
@@ -229,21 +227,6 @@ export const NearbyClubsScreen: React.FC<NearbyClubsScreenProps> = ({
     refetchNearby();
   };
 
-  // Debug function to test direct database call
-  const testDirectDatabaseCall = async () => {
-    console.log('🧪 Testing direct database call...');
-    try {
-      const { data, error } = await supabase.rpc('get_clubs_near_location', {
-        user_lat: 40.9176, // Hardcoded Stony Brook coordinates
-        user_long: -73.1252,
-        max_distance_km: 50,
-      });
-
-      console.log('🧪 Direct DB call result:', { data, error });
-    } catch (err) {
-      console.error('🧪 Direct DB call failed:', err);
-    }
-  };
 
   const handleRetryLocation = () => {
     setLocationError(null);

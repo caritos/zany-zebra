@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text } from 'react-native';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { globalStyles } from '@/app/styles/styles';
 
 export interface TabItem {
   key: string;
@@ -36,14 +37,14 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
   const finalInactiveColor = inactiveColor || defaultInactiveColor;
 
   return (
-    <View style={[styles.tabBar, { backgroundColor: finalBackgroundColor, borderBottomColor: borderColor + '20' }]}>
+    <View style={[globalStyles.tabBar, { backgroundColor: finalBackgroundColor, borderBottomColor: borderColor + '20' }]}>
       {tabs.map((tab) => {
         const isActive = activeTab === tab.key;
         return (
           <TouchableOpacity
             key={tab.key}
             style={[
-              styles.tab,
+              globalStyles.tab,
               isActive && { borderBottomColor: finalActiveColor }
             ]}
             onPress={() => onTabChange(tab.key)}
@@ -56,9 +57,9 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
               />
             )}
             <Text style={[
-              styles.tabText,
+              globalStyles.tabText,
               { color: isActive ? finalActiveColor : finalInactiveColor },
-              isActive && styles.activeTabText
+              isActive && globalStyles.activeTabText
             ]}>
               {tab.title}
             </Text>
@@ -68,28 +69,3 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  tabBar: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    paddingTop: 8,
-    paddingBottom: 8,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  tabText: {
-    fontSize: 16,
-  },
-  activeTabText: {
-    fontWeight: '600',
-  },
-});

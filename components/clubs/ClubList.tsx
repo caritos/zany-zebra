@@ -52,7 +52,7 @@ export const ClubList: React.FC<ClubListProps> = ({
       } else {
         Alert.alert('Error', result.message);
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to join club');
     }
   };
@@ -76,7 +76,7 @@ export const ClubList: React.FC<ClubListProps> = ({
               } else {
                 Alert.alert('Error', result.message);
               }
-            } catch (error) {
+            } catch {
               Alert.alert('Error', 'Failed to leave club');
             }
           },
