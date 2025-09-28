@@ -125,6 +125,13 @@ export const globalStyles = StyleSheet.create({
     fontSize: 16,
     flex: 1,
   },
+  fieldDescription: {
+    fontSize: 13,
+    marginTop: 8,
+    marginBottom: 16,
+    lineHeight: 18,
+    opacity: 0.7,
+  },
   editingRow: {
     flexDirection: 'row',
     alignItems: 'center',

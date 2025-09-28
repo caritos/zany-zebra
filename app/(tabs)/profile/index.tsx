@@ -104,6 +104,9 @@ export default function ProfileTab() {
               </TouchableOpacity>
             )}
           </View>
+          <ThemedText style={[globalStyles.fieldDescription, { color: textColor }]}>
+            Makes it easier for other users to find you when recording matches or viewing member rankings
+          </ThemedText>
 
           <ThemedText style={[globalStyles.sectionLabel, { color: textColor + "80" }]}>
             EMAIL
@@ -155,6 +158,9 @@ export default function ProfileTab() {
               </TouchableOpacity>
             )}
           </View>
+          <ThemedText style={[globalStyles.fieldDescription, { color: textColor }]}>
+            Allows you to schedule matches with other club members
+          </ThemedText>
 
           <ThemedText style={[globalStyles.sectionLabel, { color: textColor + "80" }]}>
             ZIP CODE
@@ -193,6 +199,9 @@ export default function ProfileTab() {
               </TouchableOpacity>
             )}
           </View>
+          <ThemedText style={[globalStyles.fieldDescription, { color: textColor }]}>
+            Used for locating nearby clubs. Change this to discover clubs in different areas when traveling
+          </ThemedText>
         </ThemedView>
       )}
     </ScrollView>
