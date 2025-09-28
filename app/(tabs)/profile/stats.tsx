@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ScrollView, View, ActivityIndicator } from "react-native";
-import { globalStyles } from '../../styles/styles';
+import { globalStyles } from '@/assets/styles/styles';
 import { ThemedText } from "@/components/themed-text";
 import { useAuth } from "@/contexts/auth";
 import { useThemeColor } from "@/hooks/use-theme-color";

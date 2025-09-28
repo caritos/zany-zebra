@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Profile, UpdatePhoneNumberResult } from '@/services/profileService';
-import { globalStyles } from '@/app/styles/styles';
+import { globalStyles } from '@/assets/styles/styles';
 
 interface PhoneNumberEditorProps {
   profile: Profile | null;

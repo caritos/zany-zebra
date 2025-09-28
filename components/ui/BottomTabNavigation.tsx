@@ -2,7 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { globalStyles } from '@/app/styles/styles';
+import { globalStyles } from '@/assets/styles/styles';
 
 export interface TabItem {
   key: string;

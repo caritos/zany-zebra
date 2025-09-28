@@ -180,12 +180,6 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
   members,
   onMatchRecorded,
 }) => {
-  // Auto-detect match type based on number of selected players
-  const getMatchType = (): 'singles' | 'doubles' => {
-    const playerCount = [team1Player1, team1Player2, team2Player1, team2Player2].filter(Boolean).length;
-    return playerCount > 2 ? 'doubles' : 'singles';
-  };
-
   // Team 1 players
   const [team1Player1, setTeam1Player1] = useState<PlayerOption | null>(null);
   const [team1Player2, setTeam1Player2] = useState<PlayerOption | null>(null);
@@ -193,6 +187,12 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
   // Team 2 players
   const [team2Player1, setTeam2Player1] = useState<PlayerOption | null>(null);
   const [team2Player2, setTeam2Player2] = useState<PlayerOption | null>(null);
+
+  // Auto-detect match type based on number of selected players
+  const getMatchType = (): 'singles' | 'doubles' => {
+    const playerCount = [team1Player1, team1Player2, team2Player1, team2Player2].filter(Boolean).length;
+    return playerCount > 2 ? 'doubles' : 'singles';
+  };
 
   const [sets, setSets] = useState<SetScore[]>([{ team1_games: 0, team2_games: 0, tie_breaker: null }]);
   const [notes, setNotes] = useState('');
@@ -215,8 +215,7 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
   }, [visible, members, team1Player1]);
 
   const resetForm = () => {
-    // Reset all players except current user as team1Player1 will be auto-set
-    setTeam1Player1(null);
+    // Reset all players except keep team1Player1 as current user
     setTeam1Player2(null);
     setTeam2Player1(null);
     setTeam2Player2(null);
@@ -306,26 +305,15 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
       const team2Player2Data = getPlayerData(team2Player2);
 
       // Calculate match result using TennisScoring helper
-      const matchResult = TennisScoring.calculateMatchResult(sets, 'best_of_3');
-      const winner = matchResult.winner;
-      const team1SetsWon = matchResult.team1_sets_won;
-      const team2SetsWon = matchResult.team2_sets_won;
-
-      // Prepare game scores with set numbers for database function
-      const gameScores = {
-        sets: sets.map((set, index) => ({
-          set_number: index + 1,
-          team1_games: set.team1_games,
-          team2_games: set.team2_games,
-          team1_tiebreak_points: set.tie_breaker?.team1_points || null,
-          team2_tiebreak_points: set.tie_breaker?.team2_points || null
-        }))
-      };
+      const tennisResult = TennisScoring.calculateMatchResult(sets, 'best_of_3');
+      const winner = tennisResult.winner;
+      const team1SetsWon = tennisResult.team1_sets_won;
+      const team2SetsWon = tennisResult.team2_sets_won;
 
       // Record the match using the new ELO function
       const matchType = getMatchType();
 
-      const { error: matchError } = await supabase.rpc('record_match_with_elo', {
+      const { data: matchResult, error: matchError } = await supabase.rpc('record_match_with_elo', {
         p_club_id: clubId,
         p_match_type: matchType,
         p_team1_player1_user_id: team1Player1Data.userId,
@@ -337,11 +325,30 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
         p_team2_player2_user_id: team2Player2Data.userId,
         p_team2_player2_guest_name: team2Player2Data.guestName,
         p_winner: winner,
-        p_game_scores: gameScores,
         p_notes: notes.trim() || null,
       });
 
       if (matchError) throw matchError;
+
+      // Now insert the match sets separately using the returned match_id
+      const matchId = matchResult?.match_id;
+      if (matchId && sets.length > 0) {
+        const { error: setsError } = await supabase
+          .from('match_sets')
+          .insert(
+            sets.map((set, index) => ({
+              match_id: matchId,
+              set_number: index + 1,
+              team1_games: set.team1_games,
+              team2_games: set.team2_games,
+              team1_tiebreak_points: set.tie_breaker?.team1_points || null,
+              team2_tiebreak_points: set.tie_breaker?.team2_points || null,
+              winner: TennisScoring.getSetWinner(set)
+            }))
+          );
+
+        if (setsError) throw setsError;
+      }
 
       const matchResultMessage = winner === null
         ? `Match tied ${team1SetsWon}-${team2SetsWon}!`
@@ -419,7 +426,7 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
               <Text style={styles.lockedPlayerLabel}>Player 1 (You)</Text>
               <View style={styles.lockedPlayerDisplay}>
                 <Text style={styles.lockedPlayerText}>
-                  {team1Player1 ? getPlayerDisplayName(team1Player1) : 'Loading...'}
+                  {team1Player1 ? getPlayerDisplayName(team1Player1) : 'Selecting you...'}
                 </Text>
                 <View style={styles.lockedBadge}>
                   <Text style={styles.lockedBadgeText}>Me</Text>

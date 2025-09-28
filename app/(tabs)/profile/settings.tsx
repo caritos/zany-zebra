@@ -5,9 +5,9 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { globalStyles } from '../../styles/styles';
-import faqData from "@/app/data/faq.json";
-import privacyData from "@/app/data/privacy-policy.json";
+import { globalStyles } from '@/assets/styles/styles';
+const faqData = require("@/assets/data/faq.json");
+const privacyData = require("@/assets/data/privacy-policy.json");
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useThemeColor } from "@/hooks/use-theme-color";

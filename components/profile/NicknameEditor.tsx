@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Profile, UpdateNicknameResult } from '@/services/profileService';
-import { globalStyles } from '@/app/styles/styles';
+import { globalStyles } from '@/assets/styles/styles';
 
 interface NicknameEditorProps {
   profile: Profile | null;

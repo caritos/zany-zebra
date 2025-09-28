@@ -9,7 +9,7 @@ import {
   Modal,
 } from 'react-native';
 import { UseProfileReturn } from '@/hooks/useProfile';
-import { globalStyles } from '@/app/styles/styles';
+import { globalStyles } from '@/assets/styles/styles';
 
 interface ZipCodeEditorProps {
   profile: UseProfileReturn['profile'];
