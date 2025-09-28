@@ -189,10 +189,10 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
   const [team2Player2, setTeam2Player2] = useState<PlayerOption | null>(null);
 
   // Auto-detect match type based on number of selected players
-  const getMatchType = (): 'singles' | 'doubles' => {
+  const matchType = useMemo((): 'singles' | 'doubles' => {
     const playerCount = [team1Player1, team1Player2, team2Player1, team2Player2].filter(Boolean).length;
     return playerCount > 2 ? 'doubles' : 'singles';
-  };
+  }, [team1Player1, team1Player2, team2Player1, team2Player2]);
 
   const [sets, setSets] = useState<SetScore[]>([{ team1_games: 0, team2_games: 0, tie_breaker: null }]);
   const [notes, setNotes] = useState('');
@@ -212,7 +212,7 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
       };
       getCurrentUser();
     }
-  }, [visible, members, team1Player1]);
+  }, [visible, members]);
 
   const resetForm = () => {
     // Reset all players except keep team1Player1 as current user
@@ -239,6 +239,22 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
     return ids;
   }, [team1Player1, team1Player2, team2Player1, team2Player2]);
 
+  // Memoized filtered excluded player IDs for each PlayerSelector
+  const team1Player2ExcludedIds = useMemo(() =>
+    excludedPlayerIds.filter(id =>
+      team1Player2 && 'user_id' in team1Player2 ? id !== team1Player2.user_id : true
+    ), [excludedPlayerIds, team1Player2]);
+
+  const team2Player1ExcludedIds = useMemo(() =>
+    excludedPlayerIds.filter(id =>
+      team2Player1 && 'user_id' in team2Player1 ? id !== team2Player1.user_id : true
+    ), [excludedPlayerIds, team2Player1]);
+
+  const team2Player2ExcludedIds = useMemo(() =>
+    excludedPlayerIds.filter(id =>
+      team2Player2 && 'user_id' in team2Player2 ? id !== team2Player2.user_id : true
+    ), [excludedPlayerIds, team2Player2]);
+
   const validateForm = (): boolean => {
     // Check required players
     if (!team1Player1 || !team2Player1) {
@@ -246,7 +262,7 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
       return false;
     }
 
-    const matchType = getMatchType();
+    // Use the memoized matchType
     if (matchType === 'doubles' && (!team1Player2 || !team2Player2)) {
       Alert.alert('Error', 'Please select all 4 players for doubles match');
       return false;
@@ -310,8 +326,8 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
       const team1SetsWon = tennisResult.team1_sets_won;
       const team2SetsWon = tennisResult.team2_sets_won;
 
-      // Record the match using the new ELO function
-      const matchType = getMatchType();
+      // Record the match using the database function
+      // Use the memoized matchType
 
       const { data: matchResult, error: matchError } = await supabase.rpc('record_match_with_elo', {
         p_club_id: clubId,
@@ -325,30 +341,21 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
         p_team2_player2_user_id: team2Player2Data.userId,
         p_team2_player2_guest_name: team2Player2Data.guestName,
         p_winner: winner,
+        p_game_scores: {
+          sets: sets.map((set, index) => ({
+            set_number: index + 1,
+            team1_games: set.team1_games,
+            team2_games: set.team2_games,
+            team1_tiebreak_points: set.tie_breaker?.team1_points || null,
+            team2_tiebreak_points: set.tie_breaker?.team2_points || null,
+          }))
+        },
         p_notes: notes.trim() || null,
       });
 
       if (matchError) throw matchError;
 
-      // Now insert the match sets separately using the returned match_id
-      const matchId = matchResult?.match_id;
-      if (matchId && sets.length > 0) {
-        const { error: setsError } = await supabase
-          .from('match_sets')
-          .insert(
-            sets.map((set, index) => ({
-              match_id: matchId,
-              set_number: index + 1,
-              team1_games: set.team1_games,
-              team2_games: set.team2_games,
-              team1_tiebreak_points: set.tie_breaker?.team1_points || null,
-              team2_tiebreak_points: set.tie_breaker?.team2_points || null,
-              winner: TennisScoring.getSetWinner(set)
-            }))
-          );
-
-        if (setsError) throw setsError;
-      }
+      // Match sets are handled by the function, no need for separate insert
 
       const matchResultMessage = winner === null
         ? `Match tied ${team1SetsWon}-${team2SetsWon}!`
@@ -412,9 +419,9 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           {/* Match Type Display */}
           <View style={styles.matchTypeContainer}>
-            <Text style={styles.sectionTitle}>Match Type: {getMatchType() === 'singles' ? 'Singles' : 'Doubles'}</Text>
+            <Text style={styles.sectionTitle}>Match Type: {matchType === 'singles' ? 'Singles' : 'Doubles'}</Text>
             <Text style={styles.matchTypeHint}>
-              {getMatchType() === 'singles' ? 'Add 1 more player for singles' : 'Add 3 more players for doubles'}
+              {matchType === 'singles' ? 'Add 1 more player for singles' : 'Add 3 more players for doubles'}
             </Text>
           </View>
 
@@ -439,9 +446,7 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
               selectedPlayer={team1Player2}
               onSelectPlayer={setTeam1Player2}
               members={members}
-              excludePlayerIds={excludedPlayerIds.filter(id =>
-                team1Player2 && 'user_id' in team1Player2 ? id !== team1Player2.user_id : true
-              )}
+              excludePlayerIds={team1Player2ExcludedIds}
             />
           </View>
 
@@ -454,13 +459,11 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
             <Text style={styles.teamTitle}>Team 2</Text>
 
             <PlayerSelector
-              title={getMatchType() === 'singles' ? 'Opponent' : 'Player 1'}
+              title={matchType === 'singles' ? 'Opponent' : 'Player 1'}
               selectedPlayer={team2Player1}
               onSelectPlayer={setTeam2Player1}
               members={members}
-              excludePlayerIds={excludedPlayerIds.filter(id =>
-                team2Player1 && 'user_id' in team2Player1 ? id !== team2Player1.user_id : true
-              )}
+              excludePlayerIds={team2Player1ExcludedIds}
             />
 
             <PlayerSelector
@@ -468,9 +471,7 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
               selectedPlayer={team2Player2}
               onSelectPlayer={setTeam2Player2}
               members={members}
-              excludePlayerIds={excludedPlayerIds.filter(id =>
-                team2Player2 && 'user_id' in team2Player2 ? id !== team2Player2.user_id : true
-              )}
+              excludePlayerIds={team2Player2ExcludedIds}
             />
           </View>
 

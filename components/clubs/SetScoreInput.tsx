@@ -54,7 +54,7 @@ export const SetScoreInput: React.FC<SetScoreInputProps> = ({
     }
 
     onSetScoreChange(setScore);
-  }, [team1Games, team2Games, team1TiePoints, team2TiePoints, showTieBreaker, onSetScoreChange]);
+  }, [team1Games, team2Games, team1TiePoints, team2TiePoints, showTieBreaker]);
 
   const isValidSet = (): boolean => {
     const t1Games = parseInt(team1Games) || 0;

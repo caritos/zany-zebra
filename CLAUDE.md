@@ -68,3 +68,4 @@ The app implements automatic light/dark mode switching:
 The project includes development logs in `/docs/development.md` that document deployment history and configuration changes.
 - in the app, let's refer to the postgis region as "club"
 - always use full table names in queries
+- all database functions should be stored in /database/functions/
