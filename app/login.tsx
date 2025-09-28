@@ -13,6 +13,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { supabase } from "@/lib/supabase";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useRouter } from "expo-router";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -20,6 +21,7 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const router = useRouter();
 
 
   const isValidEmail = (email: string) => {
@@ -188,6 +190,30 @@ export default function LoginScreen() {
               Forgot Password?
             </ThemedText>
           </TouchableOpacity>
+
+          {/* Legal Links */}
+          <View style={styles.legalContainer}>
+            <ThemedText style={styles.legalText}>
+              By continuing, you agree to our
+            </ThemedText>
+            <View style={styles.legalLinks}>
+              <TouchableOpacity
+                onPress={() => router.push("/terms-of-service")}
+              >
+                <ThemedText style={styles.legalLink}>
+                  Terms of Service
+                </ThemedText>
+              </TouchableOpacity>
+              <ThemedText style={styles.legalSeparator}> and </ThemedText>
+              <TouchableOpacity
+                onPress={() => router.push("/privacy-policy")}
+              >
+                <ThemedText style={styles.legalLink}>
+                  Privacy Policy
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </ThemedView>
     </KeyboardAvoidingView>
@@ -275,5 +301,32 @@ const styles = StyleSheet.create({
   },
   forgotPasswordTextDisabled: {
     color: "#999",
+  },
+  legalContainer: {
+    marginTop: 30,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(128, 128, 128, 0.2)",
+    alignItems: "center",
+  },
+  legalText: {
+    fontSize: 12,
+    opacity: 0.6,
+    textAlign: "center",
+  },
+  legalLinks: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  legalLink: {
+    fontSize: 12,
+    color: "#007AFF",
+    fontWeight: "500",
+    textDecorationLine: "underline",
+  },
+  legalSeparator: {
+    fontSize: 12,
+    opacity: 0.6,
   },
 });
