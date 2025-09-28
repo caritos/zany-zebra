@@ -5,25 +5,44 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Australian Open inspired color palette
+const aoNavyBlue = '#003366';      // Deep navy blue (primary)
+const aoElectricBlue = '#00B4D8';  // Electric blue (accent)
+const aoLightBlue = '#90E0EF';     // Light blue (highlights)
+const aoWhite = '#FFFFFF';         // Pure white
+const aoLightGray = '#F8F9FA';     // Light background
+const aoMediumGray = '#6C757D';    // Medium gray for icons/text
+const aoDarkGray = '#343A40';      // Dark gray for text
+
+const tintColorLight = aoElectricBlue;
+const tintColorDark = aoLightBlue;
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    text: aoDarkGray,
+    background: aoWhite,
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: aoMediumGray,
+    tabIconDefault: aoMediumGray,
     tabIconSelected: tintColorLight,
+    // Australian Open specific colors
+    primary: aoNavyBlue,
+    secondary: aoElectricBlue,
+    accent: aoLightBlue,
+    surface: aoLightGray,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: aoWhite,
+    background: aoNavyBlue,
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    icon: aoLightBlue,
+    tabIconDefault: aoLightBlue,
+    tabIconSelected: aoWhite,
+    // Australian Open specific colors (adjusted for dark mode)
+    primary: aoElectricBlue,
+    secondary: aoLightBlue,
+    accent: aoElectricBlue,
+    surface: '#001122',
   },
 };
 

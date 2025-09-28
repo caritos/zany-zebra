@@ -253,6 +253,7 @@ export const globalStyles = StyleSheet.create({
     justifyContent: 'center',
     padding: 16,
     borderRadius: 12,
+    backgroundColor: '#003366', // Australian Open navy blue
   },
   signOutText: {
     color: 'white',
@@ -369,10 +370,10 @@ export const globalStyles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+    backgroundColor: 'rgba(0, 180, 216, 0.1)', // Australian Open electric blue with transparency
   },
   editButtonText: {
-    color: '#007AFF',
+    color: '#00B4D8', // Australian Open electric blue
     fontSize: 12,
     fontWeight: '600',
   },
@@ -410,7 +411,7 @@ export const globalStyles = StyleSheet.create({
     fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#00B4D8', // Australian Open electric blue
   },
   saveButtonText: {
     color: '#fff',
