@@ -7,6 +7,7 @@ import {
   Alert,
   Linking,
 } from "react-native";
+import { globalStyles } from '../../styles/styles';
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -80,8 +81,8 @@ export default function SettingsTab() {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor }]}>
-      <View style={styles.menuContainer}>
+    <ScrollView style={[globalStyles.container, { backgroundColor }]} contentContainerStyle={globalStyles.scrollContainer}>
+      <View>
         <TouchableOpacity
           style={styles.menuItem}
           onPress={() => router.push("./faq")}
@@ -126,14 +127,6 @@ export default function SettingsTab() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  menuContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",

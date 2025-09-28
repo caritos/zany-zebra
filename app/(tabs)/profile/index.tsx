@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { globalStyles } from '../../styles/styles';
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -58,23 +59,17 @@ export default function ProfileTab() {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor }]}>
-      <ThemedView style={styles.header}>
-        <ThemedText style={styles.headerTitle}>
-          {profile?.nickname || session?.user?.email?.split("@")[0] || "User"}
-        </ThemedText>
-      </ThemedView>
-
+    <ScrollView style={[globalStyles.container, { backgroundColor }]} contentContainerStyle={globalStyles.scrollContainer}>
       {loading ? (
-        <ThemedView style={styles.loadingContainer}>
+        <ThemedView style={globalStyles.loadingContainer}>
           <ThemedText>Loading profile...</ThemedText>
         </ThemedView>
       ) : error ? (
-        <ThemedView style={styles.errorContainer}>
+        <ThemedView style={globalStyles.errorContainer}>
           <ThemedText style={styles.errorText}>{error}</ThemedText>
         </ThemedView>
       ) : (
-        <ThemedView style={styles.content}>
+        <ThemedView>
           <ThemedText style={[styles.sectionLabel, { color: textColor + "80" }]}>
             FULL NAME
           </ThemedText>
@@ -205,10 +200,6 @@ export default function ProfileTab() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 20,
-  },
   header: {
     padding: 20,
     paddingTop: 20,
@@ -218,21 +209,10 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "bold",
   },
-  loadingContainer: {
-    padding: 32,
-    alignItems: "center",
-  },
-  errorContainer: {
-    padding: 32,
-    alignItems: "center",
-  },
   errorText: {
     color: "#FF3B30",
     fontSize: 14,
     textAlign: "center",
-  },
-  content: {
-    padding: 20,
   },
   sectionLabel: {
     fontSize: 13,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { StyleSheet, ScrollView, View, ActivityIndicator } from "react-native";
+import { globalStyles } from '../../styles/styles';
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -119,8 +120,8 @@ export default function StatsTab() {
 
   if (loading) {
     return (
-      <View style={[styles.container, { backgroundColor }]}>
-        <View style={styles.loadingContainer}>
+      <View style={[globalStyles.container, { backgroundColor }]}>
+        <View style={globalStyles.loadingContainer}>
           <ActivityIndicator size="large" color={tintColor} />
           <ThemedText style={styles.loadingText}>Loading statistics...</ThemedText>
         </View>
@@ -130,8 +131,8 @@ export default function StatsTab() {
 
   if (error) {
     return (
-      <View style={[styles.container, { backgroundColor }]}>
-        <View style={styles.errorContainer}>
+      <View style={[globalStyles.container, { backgroundColor }]}>
+        <View style={globalStyles.errorContainer}>
           <ThemedText style={styles.errorText}>Failed to load statistics</ThemedText>
           <ThemedText style={[styles.errorSubtext, { color: textColor + "60" }]}>
             {error}
@@ -152,10 +153,10 @@ export default function StatsTab() {
   const gamesWinRate = gamesTotal > 0 ? Math.round((stats?.total_games_won || 0) / gamesTotal * 100) : 0;
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <View style={[globalStyles.container, { backgroundColor }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 10 }}
+        contentContainerStyle={globalStyles.scrollContainer}
       >
         <View style={styles.topStatsContainer}>
           {topStats.map((stat, index) => (
@@ -236,24 +237,9 @@ export default function StatsTab() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
   },
   errorText: {
     fontSize: 18,
@@ -268,9 +254,7 @@ const styles = StyleSheet.create({
   topStatsContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    paddingTop: 20,
     paddingBottom: 20,
-    paddingHorizontal: 16,
   },
   topStatItem: {
     alignItems: "center",
