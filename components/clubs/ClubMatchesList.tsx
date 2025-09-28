@@ -280,10 +280,26 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
         {/* Team 1 */}
         <View style={[styles.scoreRow, isTeam1Winner && styles.winnerRow]}>
           <View style={styles.playerSection}>
-            <Text style={[styles.playerNameInScore, isTeam1Winner && styles.winnerText]}>
-              {team1Player1Info.name}
-              {team1Player2Info && ` / ${team1Player2Info.name}`}
-            </Text>
+            <View style={styles.playerNameContainer}>
+              <Text style={[styles.playerNameInScore, isTeam1Winner && styles.winnerText]}>
+                {team1Player1Info.name}
+              </Text>
+              {team1Player1Info.isGuest && (
+                <View style={styles.guestBadge}>
+                  <Text style={styles.guestBadgeText}>GUEST</Text>
+                </View>
+              )}
+              {team1Player2Info && (
+                <>
+                  <Text style={[styles.playerNameInScore, isTeam1Winner && styles.winnerText]}> / {team1Player2Info.name}</Text>
+                  {team1Player2Info.isGuest && (
+                    <View style={styles.guestBadge}>
+                      <Text style={styles.guestBadgeText}>GUEST</Text>
+                    </View>
+                  )}
+                </>
+              )}
+            </View>
             {isTeam1Winner && (
               <View style={styles.winnerIndicatorLeft}>
                 <Text style={styles.winnerArrow}>◀</Text>
@@ -322,10 +338,26 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
         {/* Team 2 */}
         <View style={[styles.scoreRow, isTeam2Winner && styles.winnerRow]}>
           <View style={styles.playerSection}>
-            <Text style={[styles.playerNameInScore, isTeam2Winner && styles.winnerText]}>
-              {team2Player1Info.name}
-              {team2Player2Info && ` / ${team2Player2Info.name}`}
-            </Text>
+            <View style={styles.playerNameContainer}>
+              <Text style={[styles.playerNameInScore, isTeam2Winner && styles.winnerText]}>
+                {team2Player1Info.name}
+              </Text>
+              {team2Player1Info.isGuest && (
+                <View style={styles.guestBadge}>
+                  <Text style={styles.guestBadgeText}>GUEST</Text>
+                </View>
+              )}
+              {team2Player2Info && (
+                <>
+                  <Text style={[styles.playerNameInScore, isTeam2Winner && styles.winnerText]}> / {team2Player2Info.name}</Text>
+                  {team2Player2Info.isGuest && (
+                    <View style={styles.guestBadge}>
+                      <Text style={styles.guestBadgeText}>GUEST</Text>
+                    </View>
+                  )}
+                </>
+              )}
+            </View>
             {isTeam2Winner && (
               <View style={styles.winnerIndicatorLeft}>
                 <Text style={styles.winnerArrow}>◀</Text>
@@ -501,6 +533,12 @@ const styles = {
     flex: 1,
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
+  },
+  playerNameContainer: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    flexWrap: 'wrap' as const,
+    flex: 1,
   },
   playerNameInScore: {
     fontSize: 16,

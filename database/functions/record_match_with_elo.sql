@@ -1,5 +1,6 @@
 -- Function to record a match and update ELO ratings atomically
 -- This is the main function called by the React Native app to record tennis matches
+-- Updated to support ELO calculations for matches involving guest players
 
 -- Drop the old function first (required when changing parameter names)
 DROP FUNCTION IF EXISTS record_match_with_elo(bigint,text,uuid,text,uuid,text,uuid,text,uuid,text,integer,jsonb,text);
@@ -68,12 +69,114 @@ BEGIN
       FROM jsonb_array_elements(p_sets) AS set_info;
     END IF;
 
-    -- TODO: Add ELO rating calculations here
-    -- For now, just record the match without ELO updates
-    v_rating_changes := jsonb_build_object(
-      'type', p_match_type,
-      'message', 'Match recorded successfully (ELO calculations to be implemented)'
-    );
+    -- ELO rating calculations for singles matches (including guest players)
+    -- Guest players are treated as having default rating (1200) for calculation purposes
+    IF p_match_type = 'singles' THEN
+      DECLARE
+        v_p1_rating INTEGER;
+        v_p1_matches INTEGER;
+        v_p2_rating INTEGER;
+        v_p2_matches INTEGER;
+        v_k_factor INTEGER;
+        v_p1_expected NUMERIC;
+        v_score_multiplier NUMERIC;
+        v_p1_actual NUMERIC;
+        v_p1_new_rating INTEGER;
+        v_p2_new_rating INTEGER;
+      BEGIN
+
+        -- Ensure registered players have ratings records, get ratings for all players
+        IF p_team1_player1_user_id IS NOT NULL THEN
+          INSERT INTO public.user_ratings (user_id, club_id, elo_rating)
+          VALUES (p_team1_player1_user_id, p_club_id, get_initial_rating())
+          ON CONFLICT (user_id, club_id) DO NOTHING;
+
+          SELECT elo_rating, matches_played INTO v_p1_rating, v_p1_matches
+          FROM public.user_ratings
+          WHERE user_id = p_team1_player1_user_id AND club_id = p_club_id;
+        ELSE
+          -- Guest player: use default rating
+          v_p1_rating := get_initial_rating();
+          v_p1_matches := 0;
+        END IF;
+
+        IF p_team2_player1_user_id IS NOT NULL THEN
+          INSERT INTO public.user_ratings (user_id, club_id, elo_rating)
+          VALUES (p_team2_player1_user_id, p_club_id, get_initial_rating())
+          ON CONFLICT (user_id, club_id) DO NOTHING;
+
+          SELECT elo_rating, matches_played INTO v_p2_rating, v_p2_matches
+          FROM public.user_ratings
+          WHERE user_id = p_team2_player1_user_id AND club_id = p_club_id;
+        ELSE
+          -- Guest player: use default rating
+          v_p2_rating := get_initial_rating();
+          v_p2_matches := 0;
+        END IF;
+
+        -- Calculate ELO components
+        v_k_factor := get_k_factor(GREATEST(v_p1_matches, v_p2_matches));
+        v_p1_expected := get_expected_score(v_p1_rating, v_p2_rating);
+        v_score_multiplier := get_score_differential_multiplier(v_scores_text);
+        v_p1_actual := CASE WHEN p_winner = 1 THEN 1.0 ELSE 0.0 END;
+
+        -- Calculate new ratings
+        v_p1_new_rating := ROUND(v_p1_rating + (v_k_factor * v_score_multiplier * (v_p1_actual - v_p1_expected)))::INTEGER;
+        v_p2_new_rating := ROUND(v_p2_rating + (v_k_factor * v_score_multiplier * ((1.0 - v_p1_actual) - (1.0 - v_p1_expected))))::INTEGER;
+
+        -- Update player 1 ratings (only if registered user)
+        IF p_team1_player1_user_id IS NOT NULL THEN
+          UPDATE public.user_ratings
+          SET
+            elo_rating = v_p1_new_rating,
+            matches_played = matches_played + 1,
+            matches_won = matches_won + CASE WHEN p_winner = 1 THEN 1 ELSE 0 END,
+            matches_lost = matches_lost + CASE WHEN p_winner = 2 THEN 1 ELSE 0 END,
+            peak_rating = GREATEST(peak_rating, v_p1_new_rating),
+            last_match_at = NOW()
+          WHERE user_id = p_team1_player1_user_id AND club_id = p_club_id;
+        END IF;
+
+        -- Update player 2 ratings (only if registered user)
+        IF p_team2_player1_user_id IS NOT NULL THEN
+          UPDATE public.user_ratings
+          SET
+            elo_rating = v_p2_new_rating,
+            matches_played = matches_played + 1,
+            matches_won = matches_won + CASE WHEN p_winner = 2 THEN 1 ELSE 0 END,
+            matches_lost = matches_lost + CASE WHEN p_winner = 1 THEN 1 ELSE 0 END,
+            peak_rating = GREATEST(peak_rating, v_p2_new_rating),
+            last_match_at = NOW()
+          WHERE user_id = p_team2_player1_user_id AND club_id = p_club_id;
+        END IF;
+
+        -- Build response with rating changes
+        v_rating_changes := jsonb_build_object(
+          'type', 'singles',
+          'player1_change', CASE WHEN p_team1_player1_user_id IS NOT NULL THEN v_p1_new_rating - v_p1_rating ELSE 0 END,
+          'player2_change', CASE WHEN p_team2_player1_user_id IS NOT NULL THEN v_p2_new_rating - v_p2_rating ELSE 0 END,
+          'player1_is_guest', p_team1_player1_user_id IS NULL,
+          'player2_is_guest', p_team2_player1_user_id IS NULL,
+          'message', 'Singles match recorded with ELO updates'
+        );
+
+      EXCEPTION
+        WHEN OTHERS THEN
+          -- If ELO calculation fails, just record without updates
+          v_rating_changes := jsonb_build_object(
+            'type', p_match_type,
+            'error', SQLERRM,
+            'message', 'Match recorded but ELO calculation failed'
+          );
+      END;
+
+    ELSE
+      -- For doubles matches, just record without ELO updates for now
+      v_rating_changes := jsonb_build_object(
+        'type', p_match_type,
+        'message', 'Match recorded (ELO only calculated for singles matches)'
+      );
+    END IF;
 
     -- Insert match sets from sets data
     IF p_sets IS NOT NULL THEN
@@ -113,4 +216,4 @@ $$;
 GRANT EXECUTE ON FUNCTION record_match_with_elo(BIGINT, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, INTEGER, JSONB, TEXT) TO authenticated;
 
 -- Add helpful comment
-COMMENT ON FUNCTION record_match_with_elo(BIGINT, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, INTEGER, JSONB, TEXT) IS 'Records tennis match with match sets and automatic ELO rating updates (when implemented)';
+COMMENT ON FUNCTION record_match_with_elo(BIGINT, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, UUID, TEXT, INTEGER, JSONB, TEXT) IS 'Records tennis match with match sets and ELO rating updates for singles including matches with guest players';

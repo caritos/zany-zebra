@@ -353,6 +353,12 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
 
       if (matchError) throw matchError;
 
+      // Debug: Log the match result to see what's happening
+      console.log('Match recording result:', matchResult);
+      console.log('Match type:', matchType);
+      console.log('Team 1 Player 1 ID:', team1Player1Data.userId);
+      console.log('Team 2 Player 1 ID:', team2Player1Data.userId);
+
       // Match sets are handled by the function, no need for separate insert
 
       const matchResultMessage = winner === null

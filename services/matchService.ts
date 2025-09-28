@@ -50,8 +50,8 @@ export class MatchService {
       match_id: data?.match_id || null,
       success: data?.success || false,
       message: data?.message || 'Unknown error',
-      player1_elo_change: 0, // ELO changes not implemented yet
-      player2_elo_change: 0,
+      player1_elo_change: data?.rating_changes?.player1_change || 0,
+      player2_elo_change: data?.rating_changes?.player2_change || 0,
     };
   }
 
