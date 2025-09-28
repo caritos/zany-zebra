@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import {
-  StyleSheet,
   ScrollView,
   View,
   TextInput,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import { globalStyles } from '../../styles/styles';
 import { ThemedText } from "@/components/themed-text";
@@ -66,18 +64,18 @@ export default function ProfileTab() {
         </ThemedView>
       ) : error ? (
         <ThemedView style={globalStyles.errorContainer}>
-          <ThemedText style={styles.errorText}>{error}</ThemedText>
+          <ThemedText style={globalStyles.errorText}>{error}</ThemedText>
         </ThemedView>
       ) : (
         <ThemedView>
-          <ThemedText style={[styles.sectionLabel, { color: textColor + "80" }]}>
+          <ThemedText style={[globalStyles.sectionLabel, { color: textColor + "80" }]}>
             FULL NAME
           </ThemedText>
-          <View style={[styles.inputContainer, { borderColor: borderColor + "20" }]}>
+          <View style={[globalStyles.inputContainer, { borderColor: borderColor + "20" }]}>
             {editingField === "nickname" ? (
-              <View style={styles.editingRow}>
+              <View style={globalStyles.editingRow}>
                 <TextInput
-                  style={[styles.input, { color: textColor }]}
+                  style={[globalStyles.input, { color: textColor }]}
                   value={tempNickname}
                   onChangeText={setTempNickname}
                   placeholder="Enter your name"
@@ -93,13 +91,13 @@ export default function ProfileTab() {
               </View>
             ) : (
               <TouchableOpacity
-                style={styles.fieldRow}
+                style={globalStyles.fieldRow}
                 onPress={() => {
                   setEditingField("nickname");
                   setTempNickname(profile?.nickname || "");
                 }}
               >
-                <ThemedText style={styles.fieldValue}>
+                <ThemedText style={globalStyles.fieldValue}>
                   {profile?.nickname || "Tap to add name"}
                 </ThemedText>
                 <IconSymbol name="pencil" size={20} color={borderColor + "80"} />
@@ -107,23 +105,23 @@ export default function ProfileTab() {
             )}
           </View>
 
-          <ThemedText style={[styles.sectionLabel, { color: textColor + "80" }]}>
+          <ThemedText style={[globalStyles.sectionLabel, { color: textColor + "80" }]}>
             EMAIL
           </ThemedText>
-          <View style={[styles.inputContainer, { borderColor: borderColor + "20" }]}>
-            <ThemedText style={[styles.fieldValue, { color: textColor + "60" }]}>
+          <View style={[globalStyles.inputContainer, { borderColor: borderColor + "20" }]}>
+            <ThemedText style={[globalStyles.fieldValue, { color: textColor + "60" }]}>
               {session?.user?.email || "Not available"}
             </ThemedText>
           </View>
 
-          <ThemedText style={[styles.sectionLabel, { color: textColor + "80" }]}>
+          <ThemedText style={[globalStyles.sectionLabel, { color: textColor + "80" }]}>
             PHONE NUMBER
           </ThemedText>
-          <View style={[styles.inputContainer, { borderColor: borderColor + "20" }]}>
+          <View style={[globalStyles.inputContainer, { borderColor: borderColor + "20" }]}>
             {editingField === "phone" ? (
-              <View style={styles.editingRow}>
+              <View style={globalStyles.editingRow}>
                 <TextInput
-                  style={[styles.input, { color: textColor }]}
+                  style={[globalStyles.input, { color: textColor }]}
                   value={tempPhone}
                   onChangeText={setTempPhone}
                   placeholder="Enter phone number"
@@ -140,13 +138,13 @@ export default function ProfileTab() {
               </View>
             ) : (
               <TouchableOpacity
-                style={styles.fieldRow}
+                style={globalStyles.fieldRow}
                 onPress={() => {
                   setEditingField("phone");
                   setTempPhone(profile?.phone_number || "");
                 }}
               >
-                <ThemedText style={styles.fieldValue}>
+                <ThemedText style={globalStyles.fieldValue}>
                   {profile?.phone_number
                     ? formatPhoneNumber(profile.phone_number)
                     : "Tap to add phone"}
@@ -156,14 +154,14 @@ export default function ProfileTab() {
             )}
           </View>
 
-          <ThemedText style={[styles.sectionLabel, { color: textColor + "80" }]}>
+          <ThemedText style={[globalStyles.sectionLabel, { color: textColor + "80" }]}>
             ZIP CODE
           </ThemedText>
-          <View style={[styles.inputContainer, { borderColor: borderColor + "20" }]}>
+          <View style={[globalStyles.inputContainer, { borderColor: borderColor + "20" }]}>
             {editingField === "zipCode" ? (
-              <View style={styles.editingRow}>
+              <View style={globalStyles.editingRow}>
                 <TextInput
-                  style={[styles.input, { color: textColor }]}
+                  style={[globalStyles.input, { color: textColor }]}
                   value={tempZipCode}
                   onChangeText={setTempZipCode}
                   placeholder="Enter zip code"
@@ -180,13 +178,13 @@ export default function ProfileTab() {
               </View>
             ) : (
               <TouchableOpacity
-                style={styles.fieldRow}
+                style={globalStyles.fieldRow}
                 onPress={() => {
                   setEditingField("zipCode");
                   setTempZipCode(profile?.zip_code || "");
                 }}
               >
-                <ThemedText style={styles.fieldValue}>
+                <ThemedText style={globalStyles.fieldValue}>
                   {profile?.zip_code || "Tap to add zip code"}
                 </ThemedText>
                 <IconSymbol name="pencil" size={20} color={borderColor + "80"} />
@@ -199,55 +197,3 @@ export default function ProfileTab() {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    padding: 20,
-    paddingTop: 20,
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: "bold",
-  },
-  errorText: {
-    color: "#FF3B30",
-    fontSize: 14,
-    textAlign: "center",
-  },
-  sectionLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    marginTop: 24,
-    marginBottom: 8,
-    letterSpacing: 0.5,
-  },
-  inputContainer: {
-    backgroundColor: "transparent",
-    borderRadius: 12,
-    borderWidth: 1,
-    minHeight: 56,
-    justifyContent: "center",
-  },
-  fieldRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  fieldValue: {
-    fontSize: 16,
-    flex: 1,
-  },
-  editingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    paddingVertical: 4,
-  },
-});
