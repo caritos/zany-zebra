@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  StyleSheet,
   ScrollView,
   View,
   TouchableOpacity,
@@ -84,82 +83,44 @@ export default function SettingsTab() {
     <ScrollView style={[globalStyles.container, { backgroundColor }]} contentContainerStyle={globalStyles.scrollContainer}>
       <View>
         <TouchableOpacity
-          style={styles.menuItem}
+          style={globalStyles.menuItem}
           onPress={() => router.push("./faq")}
         >
-          <View style={[styles.menuIcon, { backgroundColor: tintColor }]}>
+          <View style={[globalStyles.menuIcon, { backgroundColor: tintColor }]}>
             <IconSymbol name="questionmark.circle.fill" size={20} color="white" />
           </View>
-          <ThemedText style={styles.menuText}>FAQ / Help</ThemedText>
+          <ThemedText style={globalStyles.menuText}>FAQ / Help</ThemedText>
           <IconSymbol name="chevron.right" size={16} color={borderColor + "60"} />
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.menuItem}
+          style={globalStyles.menuItem}
           onPress={() => router.push("./privacy-policy")}
         >
-          <View style={[styles.menuIcon, { backgroundColor: tintColor }]}>
+          <View style={[globalStyles.menuIcon, { backgroundColor: tintColor }]}>
             <IconSymbol name="checkmark.shield.fill" size={20} color="white" />
           </View>
-          <ThemedText style={styles.menuText}>Privacy Policy</ThemedText>
+          <ThemedText style={globalStyles.menuText}>Privacy Policy</ThemedText>
           <IconSymbol name="chevron.right" size={16} color={borderColor + "60"} />
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.menuItem}
+          style={globalStyles.menuItem}
           onPress={handleContactSupport}
         >
-          <View style={[styles.menuIcon, { backgroundColor: tintColor }]}>
+          <View style={[globalStyles.menuIcon, { backgroundColor: tintColor }]}>
             <IconSymbol name="envelope.fill" size={20} color="white" />
           </View>
-          <ThemedText style={styles.menuText}>Contact Support</ThemedText>
+          <ThemedText style={globalStyles.menuText}>Contact Support</ThemedText>
           <IconSymbol name="chevron.right" size={16} color={borderColor + "60"} />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.actionSection}>
-        <TouchableOpacity style={[styles.signOutButton, { backgroundColor: tintColor }]} onPress={handleSignOut}>
-          <ThemedText style={styles.signOutText}>Sign Out</ThemedText>
+      <View style={globalStyles.actionSection}>
+        <TouchableOpacity style={[globalStyles.signOutButton, { backgroundColor: tintColor }]} onPress={handleSignOut}>
+          <ThemedText style={globalStyles.signOutText}>Sign Out</ThemedText>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 16,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "rgba(0,0,0,0.1)",
-  },
-  menuIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 16,
-  },
-  menuText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  actionSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 40,
-  },
-  signOutButton: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 16,
-    borderRadius: 12,
-  },
-  signOutText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});

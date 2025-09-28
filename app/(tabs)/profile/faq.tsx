@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import {
-  StyleSheet,
   ScrollView,
   View,
   TouchableOpacity,
 } from "react-native";
+import { globalStyles } from '../../styles/styles';
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -33,13 +33,13 @@ export default function FAQScreen() {
   return (
     <>
       <Stack.Screen options={{ title: "FAQ / Help", headerShown: true }} />
-      <ScrollView style={[styles.container, { backgroundColor }]}>
+      <ScrollView style={[globalStyles.container, { backgroundColor }]}>
         {faqData.categories.map((category, categoryIndex) => (
           <ThemedView
             key={categoryIndex}
-            style={[styles.category, { borderColor: borderColor + "20" }]}
+            style={[globalStyles.section, { borderColor: borderColor + "20" }]}
           >
-            <ThemedText style={[styles.categoryTitle, { color: tintColor }]}>
+            <ThemedText style={[globalStyles.categoryTitle, { color: tintColor }]}>
               {category.name}
             </ThemedText>
 
@@ -48,12 +48,12 @@ export default function FAQScreen() {
               const isExpanded = expandedItems.has(itemId);
 
               return (
-                <View key={itemIndex} style={styles.questionContainer}>
+                <View key={itemIndex} style={globalStyles.questionContainer}>
                   <TouchableOpacity
-                    style={styles.questionHeader}
+                    style={globalStyles.questionHeader}
                     onPress={() => toggleExpanded(itemId)}
                   >
-                    <ThemedText style={styles.question}>
+                    <ThemedText style={globalStyles.question}>
                       {item.question}
                     </ThemedText>
                     <IconSymbol
@@ -64,8 +64,8 @@ export default function FAQScreen() {
                   </TouchableOpacity>
 
                   {isExpanded && (
-                    <View style={styles.answerContainer}>
-                      <ThemedText style={[styles.answer, { color: textColor + "90" }]}>
+                    <View style={globalStyles.answerContainer}>
+                      <ThemedText style={[globalStyles.answer, { color: textColor + "90" }]}>
                         {item.answer}
                       </ThemedText>
                     </View>
@@ -76,53 +76,8 @@ export default function FAQScreen() {
           </ThemedView>
         ))}
 
-        <View style={styles.bottomSpacing} />
+        <View style={globalStyles.bottomSpacing} />
       </ScrollView>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  category: {
-    margin: 16,
-    marginTop: 8,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  categoryTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
-  },
-  questionContainer: {
-    borderBottomWidth: 0.5,
-    borderBottomColor: "rgba(0,0,0,0.1)",
-  },
-  questionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-  question: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: "500",
-    marginRight: 12,
-  },
-  answerContainer: {
-    paddingBottom: 16,
-    paddingRight: 28,
-  },
-  answer: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  bottomSpacing: {
-    height: 40,
-  },
-});

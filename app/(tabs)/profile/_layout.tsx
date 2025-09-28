@@ -51,7 +51,7 @@ export default function ProfileTabLayout() {
         activeTab={activeTab}
         onTabChange={(tabKey) => setActiveTab(tabKey as ProfileTabKey)}
       />
-      <View style={styles.content}>
+      <View style={[styles.content, activeTab === 'stats' && { paddingTop: 20 }]}>
         {renderContent()}
       </View>
     </SafeAreaView>

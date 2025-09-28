@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { StyleSheet, ScrollView, View, ActivityIndicator } from "react-native";
+import { ScrollView, View, ActivityIndicator } from "react-native";
 import { globalStyles } from '../../styles/styles';
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -123,7 +123,7 @@ export default function StatsTab() {
       <View style={[globalStyles.container, { backgroundColor }]}>
         <View style={globalStyles.loadingContainer}>
           <ActivityIndicator size="large" color={tintColor} />
-          <ThemedText style={styles.loadingText}>Loading statistics...</ThemedText>
+          <ThemedText style={globalStyles.loadingText}>Loading statistics...</ThemedText>
         </View>
       </View>
     );
@@ -133,8 +133,8 @@ export default function StatsTab() {
     return (
       <View style={[globalStyles.container, { backgroundColor }]}>
         <View style={globalStyles.errorContainer}>
-          <ThemedText style={styles.errorText}>Failed to load statistics</ThemedText>
-          <ThemedText style={[styles.errorSubtext, { color: textColor + "60" }]}>
+          <ThemedText style={globalStyles.statsErrorText}>Failed to load statistics</ThemedText>
+          <ThemedText style={[globalStyles.errorSubtext, { color: textColor + "60" }]}>
             {error}
           </ThemedText>
         </View>
@@ -153,208 +153,65 @@ export default function StatsTab() {
   const gamesWinRate = gamesTotal > 0 ? Math.round((stats?.total_games_won || 0) / gamesTotal * 100) : 0;
 
   return (
-    <View style={[globalStyles.container, { backgroundColor }]}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={globalStyles.scrollContainer}
-      >
-        <View style={styles.topStatsContainer}>
+    <ScrollView
+      style={[globalStyles.container, { backgroundColor }]}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={[globalStyles.scrollContainer, { paddingTop: 40 }]}
+    >
+        <ThemedView style={globalStyles.section}>
           {topStats.map((stat, index) => (
-            <View key={index} style={styles.topStatItem}>
+            <View key={index} style={globalStyles.metricRow}>
+              <ThemedText style={globalStyles.metricLabel}>
+                {stat.label}
+              </ThemedText>
               <ThemedText
                 style={[
-                  styles.topStatValue,
+                  globalStyles.metricValue,
                   stat.highlight && { color: tintColor }
                 ]}
               >
                 {stat.value}
               </ThemedText>
-              <ThemedText style={[styles.topStatLabel, { color: textColor + "60" }]}>
-                {stat.label}
-              </ThemedText>
             </View>
           ))}
-        </View>
+        </ThemedView>
 
-        <ThemedView style={[styles.section, { borderColor: borderColor + "20" }]}>
-          <ThemedText style={styles.sectionTitle}>Match Breakdown</ThemedText>
+        <ThemedView style={globalStyles.section}>
+          <ThemedText style={globalStyles.sectionTitle}>Match Breakdown</ThemedText>
 
-          <View style={styles.breakdownContainer}>
-            <View style={styles.breakdownItem}>
-              <ThemedText style={styles.breakdownCategory}>Singles</ThemedText>
-              <ThemedText style={styles.breakdownValue}>
-                {stats?.singles_wins || 0}-{stats?.singles_losses || 0}
-              </ThemedText>
-              <ThemedText style={[styles.breakdownPercentage, { color: textColor + "60" }]}>
-                ({singlesWinRate}%)
-              </ThemedText>
-            </View>
+          <View style={globalStyles.metricRow}>
+            <ThemedText style={globalStyles.metricLabel}>Singles</ThemedText>
+            <ThemedText style={globalStyles.metricValue}>
+              {stats?.singles_wins || 0}-{stats?.singles_losses || 0} ({singlesWinRate}%)
+            </ThemedText>
+          </View>
 
-            <View style={styles.breakdownItem}>
-              <ThemedText style={styles.breakdownCategory}>Doubles</ThemedText>
-              <ThemedText style={styles.breakdownValue}>
-                {stats?.doubles_wins || 0}-{stats?.doubles_losses || 0}
-              </ThemedText>
-              <ThemedText style={[styles.breakdownPercentage, { color: textColor + "60" }]}>
-                ({doublesWinRate}%)
-              </ThemedText>
-            </View>
+          <View style={globalStyles.metricRow}>
+            <ThemedText style={globalStyles.metricLabel}>Doubles</ThemedText>
+            <ThemedText style={globalStyles.metricValue}>
+              {stats?.doubles_wins || 0}-{stats?.doubles_losses || 0} ({doublesWinRate}%)
+            </ThemedText>
           </View>
         </ThemedView>
 
-        <ThemedView style={[styles.section, { borderColor: borderColor + "20" }]}>
-          <ThemedText style={styles.sectionTitle}>Detailed Stats</ThemedText>
+        <ThemedView style={globalStyles.section}>
+          <ThemedText style={globalStyles.sectionTitle}>Detailed Stats</ThemedText>
 
-          <View style={styles.detailedStatsContainer}>
-            <View style={styles.detailedStatItem}>
-              <ThemedText style={styles.detailedStatValue}>
-                {stats?.total_sets_won || 0}/{setsTotal}
-              </ThemedText>
-              <ThemedText style={[styles.detailedStatLabel, { color: textColor + "60" }]}>
-                SETS WON
-              </ThemedText>
-              <ThemedText style={[styles.detailedStatPercentage, { color: textColor + "60" }]}>
-                ({setsWinRate}%)
-              </ThemedText>
-            </View>
+          <View style={globalStyles.metricRow}>
+            <ThemedText style={globalStyles.metricLabel}>Sets Won</ThemedText>
+            <ThemedText style={globalStyles.metricValue}>
+              {stats?.total_sets_won || 0}/{setsTotal} ({setsWinRate}%)
+            </ThemedText>
+          </View>
 
-            <View style={styles.detailedStatItem}>
-              <ThemedText style={styles.detailedStatValue}>
-                {stats?.total_games_won || 0}/{gamesTotal}
-              </ThemedText>
-              <ThemedText style={[styles.detailedStatLabel, { color: textColor + "60" }]}>
-                GAMES WON
-              </ThemedText>
-              <ThemedText style={[styles.detailedStatPercentage, { color: textColor + "60" }]}>
-                ({gamesWinRate}%)
-              </ThemedText>
-            </View>
+          <View style={globalStyles.metricRow}>
+            <ThemedText style={globalStyles.metricLabel}>Games Won</ThemedText>
+            <ThemedText style={globalStyles.metricValue}>
+              {stats?.total_games_won || 0}/{gamesTotal} ({gamesWinRate}%)
+            </ThemedText>
           </View>
         </ThemedView>
-      </ScrollView>
-    </View>
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-  },
-  errorText: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  errorSubtext: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  topStatsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingBottom: 20,
-  },
-  topStatItem: {
-    alignItems: "center",
-  },
-  topStatValue: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  topStatLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    letterSpacing: 0.5,
-  },
-  breakdownContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  breakdownItem: {
-    alignItems: "center",
-  },
-  breakdownCategory: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  breakdownValue: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  breakdownPercentage: {
-    fontSize: 14,
-  },
-  detailedStatsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  detailedStatItem: {
-    alignItems: "center",
-  },
-  detailedStatValue: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  detailedStatLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  detailedStatPercentage: {
-    fontSize: 14,
-  },
-  section: {
-    margin: 16,
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
-  },
-  activityItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 16,
-  },
-  activityDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginTop: 6,
-    marginRight: 12,
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityText: {
-    fontSize: 15,
-    marginBottom: 2,
-  },
-  activityTime: {
-    fontSize: 13,
-  },
-  metricRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "rgba(0,0,0,0.05)",
-  },
-  metricLabel: {
-    fontSize: 15,
-  },
-  metricValue: {
-    fontSize: 15,
-    fontWeight: "600",
-  },
-});

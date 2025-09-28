@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
+import { globalStyles } from '../../styles/styles';
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -17,7 +18,7 @@ export default function PrivacyPolicyScreen() {
     return items.map((item, index) => (
       <ThemedText
         key={index}
-        style={[styles.bulletItem, { color: textColor + "90" }]}
+        style={[globalStyles.bulletItem, { color: textColor + "90" }]}
       >
         • {item}
       </ThemedText>
@@ -27,32 +28,32 @@ export default function PrivacyPolicyScreen() {
   return (
     <>
       <Stack.Screen options={{ title: "Privacy Policy", headerShown: true }} />
-      <ScrollView style={[styles.container, { backgroundColor }]}>
+      <ScrollView style={[globalStyles.container, { backgroundColor }]}>
         {privacyData.sections.map((section, index) => (
           <ThemedView
             key={index}
-            style={[styles.section, { borderColor: borderColor + "20" }]}
+            style={[globalStyles.section, { borderColor: borderColor + "20" }]}
           >
-            <ThemedText style={[styles.sectionTitle, { color: tintColor }]}>
+            <ThemedText style={[globalStyles.sectionTitle, { color: tintColor }]}>
               {section.title}
             </ThemedText>
 
             {section.content && (
-              <ThemedText style={[styles.content, { color: textColor + "90" }]}>
+              <ThemedText style={[globalStyles.content, { color: textColor + "90" }]}>
                 {section.content}
               </ThemedText>
             )}
 
             {section.items && (
-              <View style={styles.itemsContainer}>
+              <View style={globalStyles.itemsContainer}>
                 {renderItems(section.items)}
               </View>
             )}
 
             {section.subsections &&
               section.subsections.map((subsection, subIndex) => (
-                <View key={subIndex} style={styles.subsection}>
-                  <ThemedText style={styles.subsectionTitle}>
+                <View key={subIndex} style={globalStyles.subsection}>
+                  <ThemedText style={globalStyles.subsectionTitle}>
                     {subsection.title}
                   </ThemedText>
                   {renderItems(subsection.items)}
@@ -60,67 +61,15 @@ export default function PrivacyPolicyScreen() {
               ))}
 
             {section.note && (
-              <ThemedText style={[styles.note, { color: textColor + "70" }]}>
+              <ThemedText style={[globalStyles.note, { color: textColor + "70" }]}>
                 {section.note}
               </ThemedText>
             )}
           </ThemedView>
         ))}
 
-        <View style={styles.bottomSpacing} />
+        <View style={globalStyles.bottomSpacing} />
       </ScrollView>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  section: {
-    margin: 16,
-    marginTop: 8,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 12,
-  },
-  content: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  itemsContainer: {
-    marginTop: 8,
-  },
-  bulletItem: {
-    fontSize: 14,
-    lineHeight: 22,
-    marginBottom: 6,
-    paddingLeft: 8,
-  },
-  subsection: {
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  subsectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  note: {
-    fontSize: 13,
-    fontStyle: "italic",
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 0.5,
-    borderTopColor: "rgba(0,0,0,0.1)",
-  },
-  bottomSpacing: {
-    height: 40,
-  },
-});
