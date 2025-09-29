@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   View,
+  Image,
 } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -121,9 +122,16 @@ export default function LoginScreen() {
     >
       <ThemedView style={styles.content}>
         <ThemedView style={styles.header}>
-          <ThemedText type="title">Welcome</ThemedText>
+          <Image
+            source={require("@/assets/images/retro-tennis-ball-motion.png")}
+            style={styles.appIcon}
+            resizeMode="contain"
+          />
+          <ThemedText type="title" style={styles.appName}>
+            FifteenAll
+          </ThemedText>
           <ThemedText style={styles.subtitle}>
-            Enter your credentials to continue
+            Tennis clubs, matches & rankings
           </ThemedText>
         </ThemedView>
 
@@ -233,10 +241,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 40,
   },
+  appIcon: {
+    width: 120,
+    height: 120,
+    marginBottom: 20,
+    borderRadius: 24,
+  },
+  appName: {
+    fontSize: 32,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+    marginBottom: 8,
+  },
   subtitle: {
-    marginTop: 8,
+    marginTop: 4,
     fontSize: 16,
     opacity: 0.7,
+    textAlign: "center",
   },
   form: {
     width: "100%",

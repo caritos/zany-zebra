@@ -2,12 +2,12 @@ import "dotenv/config";
 
 export default {
   expo: {
-    name: "zany-zebra",
+    name: "FifteenAll",
     slug: "zany-zebra",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/retro-tennis-ball-motion.png",
-    scheme: "zanyzebra",
+    scheme: "fifteenall",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     ios: {
