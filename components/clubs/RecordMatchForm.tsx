@@ -11,9 +11,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  Button,
 } from 'react-native';
-// import DateTimePicker from '@react-native-community/datetimepicker'; // Removed - using custom picker
 import { ClubMemberWithRating } from '@/types/matches';
 import { SetScore, TennisScoring } from '@/types/tennis-scoring';
 import { SetScoreInput } from './SetScoreInput';
@@ -216,7 +214,7 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
       };
       getCurrentUser();
     }
-  }, [visible, members]);
+  }, [visible, members, team1Player1]);
 
   const resetForm = () => {
     // Reset all players except keep team1Player1 as current user
@@ -337,9 +335,17 @@ export const RecordMatchForm: React.FC<RecordMatchFormProps> = ({
       // Use the memoized matchType
 
       // Match the parameter order expected by the current database function
+      // Format date in local timezone (not UTC) to avoid date shifts
+      const year = matchDate.getFullYear();
+      const month = String(matchDate.getMonth() + 1).padStart(2, '0');
+      const day = String(matchDate.getDate()).padStart(2, '0');
+      const localDateString = `${year}-${month}-${day}`;
+
+      console.log('Sending match_date to database:', localDateString);
+
       const { data: matchResult, error: matchError } = await supabase.rpc('record_match_with_elo', {
         p_club_id: clubId,
-        p_match_date: matchDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
+        p_match_date: localDateString, // Use local date, not UTC
         p_match_type: matchType,
         p_notes: notes.trim() || null,
         p_sets: sets.map((set, index) => ({
@@ -986,9 +992,6 @@ const styles = {
     padding: 16,
     borderRadius: 8,
     marginHorizontal: 8,
-  },
-  cancelButton: {
-    backgroundColor: '#f0f0f0',
   },
   confirmButton: {
     backgroundColor: '#007AFF',

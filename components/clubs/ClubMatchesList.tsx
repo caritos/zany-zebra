@@ -95,6 +95,12 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
 
       if (matchError) throw matchError;
 
+      console.log('Raw match data from database:', matchData?.slice(0, 2).map(m => ({
+        id: m.id,
+        match_date: m.match_date,
+        match_date_type: typeof m.match_date
+      })));
+
       if (!matchData || matchData.length === 0) {
         setMatches([]);
         return;
@@ -186,6 +192,7 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
 
       console.log('Final matches with sets:', matchesWithProfiles.map(m => ({
         id: m.id,
+        match_date: m.match_date,
         sets_count: m.match_sets.length,
         sets: m.match_sets
       })));
@@ -248,8 +255,33 @@ export const ClubMatchesList: React.FC<ClubMatchesListProps> = ({
   }, [matches, filters, currentUserId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    // Handle null or undefined dates
+    if (!dateString) {
+      return 'Date not set';
+    }
+
+    // Handle both date formats from database:
+    // 1. "2025-09-29T00:00:00+00:00" (with timezone)
+    // 2. "2025-09-29" (date only)
+
+    let localDate;
+
+    // If it includes 'T', it's already a full datetime string
+    if (dateString.includes('T')) {
+      // Extract just the date part (YYYY-MM-DD) and treat as local date
+      const datePart = dateString.split('T')[0];
+      localDate = new Date(datePart + 'T00:00:00');
+    } else {
+      // Plain date format
+      localDate = new Date(dateString + 'T00:00:00');
+    }
+
+    // Check if date is valid
+    if (isNaN(localDate.getTime())) {
+      return 'Invalid Date';
+    }
+
+    return localDate.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
