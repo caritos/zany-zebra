@@ -1,0 +1,171 @@
+# Development Log 
+
+## 20250915
+
+### create club 
+- i'm able to create a club
+
+### updated e2e testing for authentication
+- i still have a little bit of /var/folders/mb/fd09y5sj6k5clc29jsftng680000gn/T/TemporaryItems/NSIRD_screencaptureui_JMw0wi/Screenshot\ 2025-09-15\ at\ 19.26.03.png
+## 20250914
+
+### authentication works
+
+- login works
+- signup works
+- forget password words
+- reset password works.
+  
+### supabase mcp server setup
+
+claude code now has access to supabase backend.
+it's configure in the mcp now.
+
+### Tamagui as UI kit
+ 
+I want to use Tamagui as my UI.
+I'm getting tired of the material paper look.
+I've update the brand design system for a  Wimbledon Tennis feel.
+
+### Context7 is setup for documentation with claude code
+
+Claude can now use documentation from Context7
+
+### Jest for unit testing
+
+Ok, Jest is setup .
+I just have to run the command `npm test`
+
+```
+ You can now:
+ npm test
+  - Run npm run test:watch for TDD mode
+  - Run npm run test:coverage to see code coverage
+  - Write new tests in /tests/unit/ following TDD principles
+```
+
+### Maestro for e2e testing
+
+I want to setup maestro for testing.
+It's running now and all i have to run is the command `npm run test:e2e`
+
+```
+ 1. Commented out the backgrounding test in basic-test.yaml - This is a known Maestro/XCTest
+  limitation on iOS where the accessibility framework can lose connection after backgrounding
+  2. Created a separate app-lifecycle.yaml test specifically for backgrounding/foregrounding - You
+   can run it separately when needed, understanding it may occasionally fail due to iOS
+  limitations
+
+  Now run the tests again:
+  npm run test:e2e
+
+  The tests should pass without crashing. The backgrounding functionality is still testable via
+  the separate app-lifecycle test when needed:
+  npm run test:e2e app-lifecycle
+
+  This is a common issue with iOS UI testing tools - the XCTest framework sometimes has trouble
+  reconnecting to backgrounded apps. The workaround is to keep critical tests stable and isolate
+  potentially flaky lifecycle tests.
+
+```
+
+app-lifecycle.yaml might fail from time to time. 
+but otherwise, the e2e tests is up and running.
+
+## 20250913
+
+### Installed Github app with claude code
+I installed github app with claude code so i can work review the code in a branch instead of main.
+I can also use issues to drive the work to be done.
+
+### output logs to a file so that claude can view it.
+
+```
+ For npx expo run:ios with logging to a file, use:
+
+  npx expo run:ios 2>&1 | tee logs/console.log
+
+  This will:
+  - Build and run the iOS app
+  - Display output in your terminal
+  - Save all output to logs/console.log
+
+  If you want to append to the log file instead of overwriting:
+  npx expo run:ios 2>&1 | tee -a logs/console.log
+
+```
+
+To rebuild the ios app
+
+```
+rm -rf ios
+npx expo prebuild --platform ios
+npx expo run:ios 2>&1 | tee logs/console.log
+```
+
+### Different Builds 
+
+There are different types of build when developing with Expo.
+You can build with the Expo Go, development builds, and production build.
+I chose development builds that will be build locally (vs using EAS web service) since this will be a faster workflow and closer experience than Expo Go.
+
+Using the command `npx expo run:ios`
+
+### I reset the project
+
+```
+❯ npm run reset-project
+
+> play-serve@1.0.0 reset-project
+> node ./scripts/reset-project.js
+
+Do you want to move existing files to /app-example instead of deleting them? (Y/n): Y
+📁 /app-example directory created.
+➡️ /app moved to /app-example/app.
+➡️ /components moved to /app-example/components.
+➡️ /hooks moved to /app-example/hooks.
+➡️ /constants moved to /app-example/constants.
+➡️ /scripts moved to /app-example/scripts.
+
+📁 New /app directory created.
+📄 app/index.tsx created.
+📄 app/_layout.tsx created.
+
+✅ Project reset complete. Next steps:
+1. Run `npx expo start` to start a development server.
+2. Edit app/index.tsx to edit the main screen.
+3. Delete the /app-example directory when you're done referencing it.
+
+```
+
+### A new version of the Expo SDK came out so there are warning when generating the project.  Hopefully this will clear up in time.
+
+```
+❯ npx create-expo-app play-serve --template
+✔ Choose a template: › Default
+✔ Downloaded and extracted project files.
+> npm install
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+
+added 957 packages, and audited 958 packages in 10s
+
+173 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+✅ Your project is ready!
+
+To run your project, navigate to the directory and run one of the following npm commands.
+
+- cd play-serve
+- npm run android
+- npm run ios
+- npm run web
+````
+
