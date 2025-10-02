@@ -15,6 +15,7 @@ export default {
       bundleIdentifier: "com.caritos.zany-zebra",
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
+        NSLocationWhenInUseUsageDescription: "FifteenAll uses your location to find tennis clubs near you and display the distance to each club. For example, we'll show you clubs within 30 miles of your current location so you can discover and join the ones closest to you.",
       },
     },
     android: {
