@@ -57,6 +57,12 @@ The app uses Expo Router with file-based routing:
 - `hooks/` - Custom React hooks for theme and color scheme
 - `constants/` - App constants including theme definitions
 
+### Backend Structure
+- `database/functions/` - PostgreSQL functions (SQL)
+- `database/migrations/` - Database schema migrations
+- `supabase/functions/` - Edge Functions (TypeScript/Deno)
+- `services/` - Client-side service layer for API calls
+
 ### Theme System
 The app implements automatic light/dark mode switching:
 - Theme detection via `useColorScheme` hook
@@ -70,3 +76,13 @@ The project includes development logs in `/docs/development.md` that document de
 - always use full table names in queries
 - all database functions should be stored in /database/functions/
 - elo scores apply to playing with guest players
+
+## Deployment Commands
+
+### Supabase Edge Functions
+- Deploy: `npx supabase functions deploy <function-name>`
+- List: `npx supabase functions list`
+- Logs: `npx supabase functions logs <function-name>`
+
+### Database Functions
+- Execute SQL files via Supabase SQL Editor or migrations

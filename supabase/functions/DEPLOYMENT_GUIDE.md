@@ -81,20 +81,9 @@ You should see: `✓ Linked to project YOUR_PROJECT_REF`
 
 Now deploy the `delete-account` function:
 
-### **Option A: Deploy from project root** (Easiest)
+From your project root:
 
 ```bash
-# Create a symlink so Supabase CLI can find your functions
-ln -s database/edge supabase/functions
-
-# Deploy the function
-supabase functions deploy delete-account
-```
-
-### **Option B: Deploy from edge directory**
-
-```bash
-cd database/edge
 supabase functions deploy delete-account
 ```
 
@@ -168,9 +157,7 @@ supabase link --project-ref YOUR_PROJECT_REF
 
 ### ❌ "Error: Function not found"
 
-**Solution**: Make sure you're in the right directory. Either:
-- Create symlink: `ln -s database/edge supabase/functions`
-- Or deploy from: `cd database/edge && supabase functions deploy delete-account`
+**Solution**: Make sure you're in the project root directory where `supabase/functions/` exists.
 
 ### ❌ "Error: Invalid credentials"
 
@@ -221,7 +208,7 @@ supabase functions logs delete-account --follow
 
 If you need to update the function:
 
-1. Edit `database/edge/delete-account/index.ts`
+1. Edit `supabase/functions/delete-account/index.ts`
 2. Redeploy:
    ```bash
    supabase functions deploy delete-account
@@ -243,16 +230,13 @@ supabase login
 # 3. Link project (one time)
 supabase link --project-ref YOUR_PROJECT_REF
 
-# 4. Create symlink (one time)
-ln -s database/edge supabase/functions
-
-# 5. Deploy function
+# 4. Deploy function
 supabase functions deploy delete-account
 
-# 6. Verify deployment
+# 5. Verify deployment
 supabase functions list
 
-# 7. View logs (optional)
+# 6. View logs (optional)
 supabase functions logs delete-account
 ```
 

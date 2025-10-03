@@ -5,7 +5,7 @@ Edge Functions are server-side TypeScript functions that run on Supabase's infra
 ## Directory Structure
 
 ```
-database/edge/
+supabase/functions/
 ├── delete-account/
 │   └── index.ts          # Account deletion Edge Function
 └── _shared/
@@ -50,24 +50,10 @@ await supabaseAdmin.auth.admin.deleteUser(user.id)
 
 ### Deploy Edge Function
 
-Since functions are in `database/edge/` instead of default `supabase/functions/`, you need to specify the path:
+Functions are in `supabase/functions/` following Supabase's standard structure:
 
-**Option 1: Deploy from function directory**
-```bash
-cd database/edge
-supabase functions deploy delete-account
-```
-
-**Option 2: Deploy with explicit path**
-```bash
-supabase functions deploy delete-account \
-  --project-ref YOUR_PROJECT_REF
-```
-
-**Option 3: Create symlink (one-time setup)**
 ```bash
 # From project root
-ln -s database/edge supabase/functions
 supabase functions deploy delete-account
 ```
 
@@ -89,13 +75,6 @@ supabase functions logs delete-account
 
 ```bash
 # From project root
-supabase functions serve delete-account \
-  --env-file ./database/edge/.env.local
-```
-
-Or from the edge directory:
-```bash
-cd database/edge
 supabase functions serve delete-account
 ```
 
@@ -126,7 +105,7 @@ Edge Functions have access to these environment variables (automatically provide
 
 1. **Create function directory**:
    ```bash
-   mkdir -p database/edge/my-function
+   mkdir -p supabase/functions/my-function
    ```
 
 2. **Create index.ts**:
@@ -174,14 +153,10 @@ Edge Functions have access to these environment variables (automatically provide
 
 ### Function not found during deployment
 
-If you get "function not found" error:
+If you get "function not found" error, make sure you're in the project root:
 ```bash
-# Make sure you're in the right directory
-cd database/edge
+cd /path/to/project
 supabase functions deploy delete-account
-
-# Or use absolute path
-supabase functions deploy delete-account --project-ref YOUR_PROJECT_REF
 ```
 
 ### CORS errors in browser
@@ -196,15 +171,7 @@ return new Response(data, { headers: corsHeaders })
 
 ### Environment variables not available
 
-Environment variables are automatically provided by Supabase. For local development:
-```bash
-# Create .env.local in database/edge/
-SUPABASE_URL=http://localhost:54321
-SUPABASE_SERVICE_ROLE_KEY=your-local-service-role-key
-
-# Then serve with env file
-supabase functions serve delete-account --env-file ./database/edge/.env.local
-```
+Environment variables are automatically provided by Supabase when deployed.
 
 ---
 
