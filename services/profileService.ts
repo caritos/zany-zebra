@@ -27,6 +27,16 @@ export interface UpdatePhoneNumberResult {
   message: string;
 }
 
+export interface DeleteAccountResult {
+  success: boolean;
+  message: string;
+  details?: {
+    matches_deleted: number;
+    club_memberships_deleted: number;
+    ratings_deleted: number;
+  };
+}
+
 export class ProfileService {
   // Get user's profile
   static async getProfile(): Promise<Profile | null> {
@@ -152,5 +162,43 @@ export class ProfileService {
     }
 
     return data;
+  }
+
+  // Delete user account and all associated data
+  static async deleteAccount(): Promise<DeleteAccountResult> {
+    try {
+      // Get the current session to include auth token
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      // Call the Edge Function to delete the account
+      // This uses the service role key server-side to properly delete auth.users
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/delete-account`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete account');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to delete account');
+    }
   }
 }

@@ -10,6 +10,7 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { supabase } from "@/lib/supabase";
 import { globalStyles } from '@/assets/styles/styles';
+import { ProfileService } from "@/services/profileService";
 
 const faqData = require("@/assets/data/faq.json");
 const privacyData = require("@/assets/data/privacy-policy.json");
@@ -62,6 +63,45 @@ export default function SettingsTab() {
             const { error } = await supabase.auth.signOut();
             if (error) {
               Alert.alert("Error", error.message);
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to permanently delete your account?\n\nWHAT WILL BE DELETED:\n• Your profile and login credentials\n• Your club memberships  \n• Your personal statistics and rankings\n\nWHAT WILL BE KEPT:\n• Clubs (owned by all members, not individuals)\n• Match records (your identity removed/anonymized)\n\nThis removes your personal data while preserving the community. This action cannot be undone and takes effect immediately.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete My Account",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const result = await ProfileService.deleteAccount();
+              if (result.success) {
+                // Sign out the user after successful deletion
+                await supabase.auth.signOut();
+                Alert.alert(
+                  "Account Deleted",
+                  "Your account has been permanently deleted. You will now be signed out.",
+                  [{ text: "OK" }]
+                );
+              } else {
+                Alert.alert("Error", result.message);
+              }
+            } catch (error) {
+              Alert.alert(
+                "Error",
+                error instanceof Error ? error.message : "Failed to delete account. Please try again or contact support."
+              );
             }
           },
         },
@@ -276,6 +316,13 @@ export default function SettingsTab() {
       <View style={globalStyles.actionSection}>
         <TouchableOpacity style={[globalStyles.signOutButton, { backgroundColor: tintColor }]} onPress={handleSignOut}>
           <ThemedText style={globalStyles.signOutText}>Sign Out</ThemedText>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[globalStyles.signOutButton, { backgroundColor: '#dc3545', marginTop: 12 }]}
+          onPress={handleDeleteAccount}
+        >
+          <ThemedText style={globalStyles.signOutText}>Delete Account</ThemedText>
         </TouchableOpacity>
       </View>
     </ScrollView>

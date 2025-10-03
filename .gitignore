@@ -48,3 +48,7 @@ app-example
 
 /logs/console.log
 /logs/expo.log
+
+
+supabase/.temp/*
+supabase/.temp/
