@@ -7,13 +7,19 @@ import { Stack, useRouter, useSegments, SplashScreen } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { useEffect } from "react";
+import { Platform } from "react-native";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { AuthProvider, useAuth } from "@/contexts/auth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Prevent the splash screen from auto-hiding before auth check
-SplashScreen.preventAutoHideAsync();
+// Only call this in a browser environment (not during static export)
+if (Platform.OS !== 'web' || (typeof window !== 'undefined')) {
+  SplashScreen.preventAutoHideAsync().catch(() => {
+    // Ignore errors during static export
+  });
+}
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
@@ -24,7 +30,12 @@ function RootLayoutNav() {
   useEffect(() => {
     if (!loading) {
       // Hide splash screen once we know auth state
-      SplashScreen.hideAsync();
+      // Only call this in a browser environment (not during static export)
+      if (Platform.OS !== 'web' || (typeof window !== 'undefined')) {
+        SplashScreen.hideAsync().catch(() => {
+          // Ignore errors during static export
+        });
+      }
 
       // Check if user is in the right navigation flow
       const inAuthGroup = segments[0] === "(tabs)";

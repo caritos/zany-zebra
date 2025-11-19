@@ -3,6 +3,7 @@ import "react-native-url-polyfill/auto";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
 import Constants from "expo-constants";
+import { Platform } from "react-native";
 
 // Get environment variables from EAS build or local development
 const supabaseUrl =
@@ -23,12 +24,26 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// Use appropriate storage for platform
+// For web, AsyncStorage uses localStorage which is only available in browser
+const getStorage = () => {
+  if (Platform.OS === 'web') {
+    // Check if we're in a browser environment (not during static export)
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return AsyncStorage;
+    }
+    // During static export, return undefined to skip storage
+    return undefined;
+  }
+  return AsyncStorage;
+};
+
 // Create the Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: AsyncStorage,
+    storage: getStorage(),
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    detectSessionInUrl: Platform.OS === 'web',
   },
 });

@@ -46,9 +46,10 @@ The Home page contains navigation links to:
 
 ### 4. App Store URLs
 Use these URLs in App Store Connect:
-- **Support URL**: `https://github.com/caritos/tennis/wiki`
-- **Privacy Policy URL**: `https://github.com/caritos/tennis/wiki/Privacy-Policy`
-- **Terms of Service URL**: `https://github.com/caritos/tennis/wiki/Terms-of-Service`
+- **Support URL**: `https://tennis.caritos.com/support`
+- **Privacy Policy URL**: `https://tennis.caritos.com/privacy-policy`
+- **Terms of Service URL**: `https://tennis.caritos.com/terms-of-service`
+- **FAQ URL**: `https://tennis.caritos.com/faq`
 
 ## Content Management
 
